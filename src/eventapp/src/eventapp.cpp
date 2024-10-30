@@ -17,5 +17,6 @@
 
 int main()
 {
+	loadHashTableFromFile();
 	mainMenu();
 }

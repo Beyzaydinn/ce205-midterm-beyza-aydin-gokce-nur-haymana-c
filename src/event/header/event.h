@@ -7,19 +7,30 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "../../utility/header/commonTypes.h"
+#include "../../utility/header/commonTypes.h" 
 
+void printHashTable();
 bool mainMenu();
 bool authentication();
-bool mainMenu();
-bool eventDetails();
-bool attendee();
-bool schedule();
-bool feedback();
 bool Register();
 bool logIn();
 bool guest();
-bool displayUsers();
-
+bool createEvent();
+bool manageEvent();
+bool eventDetails();
+bool schedule();
+bool feedback();
+bool attendee();
+bool registerAttendees();
+bool trackAttendees();
+void addAttendee();
+void deleteAttendee();
+void updateAttendee();
+void compressData();
+void decompressData();
+void saveHashTableToFile();
+void loadHashTableFromFile();
+void clear_screen();
+void loadHashTableFromFile(void);
 
 #endif // EVENT_H

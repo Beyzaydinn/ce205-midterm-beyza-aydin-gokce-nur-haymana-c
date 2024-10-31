@@ -3,8 +3,52 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector> // std::vector kullanýmý için
+#include <stdbool.h>
+#include <limits.h>
+#include <stdint.h>
 
 #define TABLE_SIZE 100
+#define MAX_ATTENDEES 100
+#define MAX_TREE_NODES 256
+
+// Define the structure for an Attendee
+typedef struct Attendee {
+    char name[50];
+    char surname[50];
+    char huffmanCode[256]; // Store the Huffman code
+} Attendee;
+
+// Define a structure for the Huffman tree nodes
+typedef struct MinHeapNode {
+    char data;
+    unsigned freq;
+    struct MinHeapNode* left, * right;
+} MinHeapNode;
+
+// Define a structure for Min Heap
+typedef struct MinHeap {
+    unsigned size;
+    unsigned capacity;
+    MinHeapNode** array;
+} MinHeap;
+
+// Function declarations
+void kmpSearch(char* pattern);
+void computeLPSArray(char* pattern, int M, int* lps);
+void compressAttendeeName(Attendee* attendee);
+void buildHuffmanTree(char* str, Attendee* attendee);
+MinHeap* createMinHeap(unsigned capacity);
+MinHeapNode* createMinHeapNode(char data, unsigned freq);
+void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
+MinHeapNode* extractMin(MinHeap* minHeap);
+void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
+void printAttendees(); // New function declaration
+
+// Global variables
+Attendee attendees[MAX_ATTENDEES];
+int attendeeCount = 0;
+
 
 void clear_screen() {
 #if defined(_WIN32) || defined(_WIN64)
@@ -119,6 +163,139 @@ void printHashTable() {
     printf("End of Hash Table.\n");
 }
 
+// Function to compress attendee names using Huffman coding
+void compressAttendeeName(Attendee* attendee) {
+    char combined[100];
+    snprintf(combined, sizeof(combined), "%s %s", attendee->name, attendee->surname);
+    buildHuffmanTree(combined, attendee); // Pass attendee to store the Huffman code
+}
+
+// Function to create a Min Heap
+MinHeap* createMinHeap(unsigned capacity) {
+    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode*));
+    return minHeap;
+}
+
+// Function to create a Min Heap Node
+MinHeapNode* createMinHeapNode(char data, unsigned freq) {
+    MinHeapNode* newNode = (MinHeapNode*)malloc(sizeof(MinHeapNode));
+    newNode->data = data;
+    newNode->freq = freq;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a node into the Min Heap
+void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode) {
+    minHeap->array[minHeap->size] = minHeapNode;
+    minHeap->size++;
+}
+
+// Function to extract the minimum node from the Min Heap
+MinHeapNode* extractMin(MinHeap* minHeap) {
+    MinHeapNode* temp = minHeap->array[0];
+    minHeap->array[0] = minHeap->array[minHeap->size - 1];
+    minHeap->size--;
+    return temp;
+}
+
+// Function to build Huffman Tree
+void buildHuffmanTree(char* str, Attendee* attendee) {
+    // Frequency array
+    int freq[MAX_TREE_NODES] = { 0 };
+    for (int i = 0; str[i] != '\0'; i++) {
+        freq[(unsigned char)str[i]]++;
+    }
+
+    MinHeap* minHeap = createMinHeap(MAX_TREE_NODES);
+
+    // Create a min-heap for characters with non-zero frequency
+    for (int i = 0; i < MAX_TREE_NODES; i++) {
+        if (freq[i]) {
+            MinHeapNode* minHeapNode = createMinHeapNode(i, freq[i]);
+            insertMinHeap(minHeap, minHeapNode);
+        }
+    }
+
+    // Build the Huffman Tree
+    while (minHeap->size != 1) {
+        MinHeapNode* left = extractMin(minHeap);
+        MinHeapNode* right = extractMin(minHeap);
+
+        MinHeapNode* top = createMinHeapNode('$', left->freq + right->freq);
+        top->left = left;
+        top->right = right;
+
+        insertMinHeap(minHeap, top);
+    }
+
+    // The remaining node is the root of the Huffman Tree
+    MinHeapNode* root = extractMin(minHeap);
+    char huffmanCode[256] = { 0 }; // Buffer to store the generated code
+    generateHuffmanCodes(root, huffmanCode, 0, attendee->huffmanCode);
+}
+
+// Function to generate Huffman Codes
+void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode) {
+    if (root->left) {
+        code[top] = '0';
+        generateHuffmanCodes(root->left, code, top + 1, huffmanCode);
+    }
+
+    if (root->right) {
+        code[top] = '1';
+        generateHuffmanCodes(root->right, code, top + 1, huffmanCode);
+    }
+
+    // Save the generated Huffman code for the character
+    if (!(root->left) && !(root->right)) {
+        code[top] = '\0';
+        sprintf(huffmanCode, "%s%c: %s\n", huffmanCode, root->data, code); // Append code to huffmanCode
+    }
+}
+
+// KMP search function
+void kmpSearch(char* pattern) {
+    int M = strlen(pattern);
+    int found = false;
+
+    for (int i = 0; i < attendeeCount; i++) {
+        // Here we need to use the stored Huffman code instead of the name for matching
+        // Implement KMP algorithm with Huffman coded names
+    }
+
+    if (!found) {
+        printf("No match found.\n");
+    }
+}
+
+// Compute LPS array used in KMP pattern search
+void computeLPSArray(char* pattern, int M, int* lps) {
+    int length = 0;
+    lps[0] = 0;
+    int i = 1;
+    while (i < M) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        }
+        else {
+            if (length != 0) {
+                length = lps[length - 1];
+            }
+            else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+
 bool validateLogin(const char* phone, const char* password) {
     unsigned int index = hash(phone);
     User* current = hashTable[index];
@@ -192,6 +369,7 @@ bool authentication() {
             return mainMenu();
         }
         else {
+            clear_screen();
             printf("Invalid login. Returning to main menu.\n");
             return mainMenu();
         }
@@ -201,8 +379,9 @@ bool authentication() {
         return mainMenu();
         break;
     default:
+        clear_screen(); 
         printf("Invalid choice. Please try again.\n");
-        return false;
+        return mainMenu();
     }
     return true;
 }
@@ -241,6 +420,7 @@ bool logIn() {
 
 // Misafir giriþi fonksiyonu
 bool guest() {
+    clear_screen();
     printf("Guest login successful!\n");
     return true;
 }
@@ -307,6 +487,7 @@ bool manageEvent() {
             else {
                 printf("No next event.\n");
             }
+            clear_screen();   
             break;
         case 2:
             if (current->prev != NULL) {
@@ -315,6 +496,7 @@ bool manageEvent() {
             else {
                 printf("No previous event.\n");
             }
+            clear_screen(); 
             break;
         case 3:
             printf("Enter new type: ");
@@ -360,37 +542,78 @@ bool eventDetails() {
         manageEvent();
         break;
     default:
+        clear_screen(); 
         printf("Invalid choice. Please try again.\n");
-        return false;
+        return mainMenu();
     }
     return true;
 }
 
+// Main attendee function
 bool attendee() {
-    int attendees;
+    int choice;
     printf("1. Register Attendees\n");
     printf("2. Track Attendees\n");
+    printf("3. Print Attendees\n"); // New option for printing attendees
     printf("Please enter your choice: ");
-    scanf("%d", &attendees);
-    switch (attendees) {
+    scanf("%d", &choice);
+
+    switch (choice) {
     case 1:
         registerAttendees();
         break;
-    case2:
+    case 2: {
+        clear_screen();  
+        char searchName[50];
+        printf("Enter the name to search: ");
+        scanf("%s", searchName);
+        kmpSearch(searchName);
+        break;
+    }
+    case 3: // Call printAttendees function
+        printAttendees();
         break;
     default:
+        clear_screen();  
         printf("Invalid choice. Please try again.\n");
-        return false;
+        return mainMenu();
     }
     return true;
 }
+
+// Function to register attendees
 bool registerAttendees() {
-    return true;
+    int count;
+    printf("How many people will attend? ");
+    scanf("%d", &count);
+
+    if (count <= 0 || count > MAX_ATTENDEES) {
+        printf("Invalid number! Please enter a value between 1 and %d.\n", MAX_ATTENDEES);
+        return false;
+    }
+
+    for (int i = 0; i < count; i++) {
+        printf("Enter the name of attendee %d: ", i + 1);
+        scanf("%s", attendees[attendeeCount].name);
+        printf("Enter the surname of attendee %d: ", i + 1);
+        scanf("%s", attendees[attendeeCount].surname);
+        compressAttendeeName(&attendees[attendeeCount]); // Compress name and store Huffman code
+        attendeeCount++;
+    }
+    clear_screen();  
+    printf("%d attendees registered.\n", count);
+    return mainMenu();
 }
 
-bool trackAttendees() {
-    return true;
+
+// Function to print registered attendees
+void printAttendees() {
+    printf("\nRegistered Attendees:\n");
+    for (int i = 0; i < attendeeCount; i++) {
+        printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].name, attendees[i].surname, attendees[i].huffmanCode);
+    }
 }
+
 bool schedule() {
     return true;
 }

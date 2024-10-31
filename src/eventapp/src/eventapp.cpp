@@ -17,6 +17,7 @@
 
 int main()
 {
+	memset(hashTable, 0, sizeof(hashTable));
 	loadHashTableFromFile();
 	mainMenu();
 }

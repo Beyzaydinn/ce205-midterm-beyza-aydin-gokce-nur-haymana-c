@@ -669,9 +669,44 @@ bool schedule() {
 }
 
 
-
+// Function to gather feedback
+void gatherFeedbacks() {
+    clear_screen();
+    char feedback[256];  // Buffer for input
+    printf("Enter your feedback (max 255 characters): ");
+    fgets(feedback, sizeof(feedback), stdin);  // Get input from user
+    feedback[strcspn(feedback, "\n")] = 0;  // Remove newline character
+    printf("Feedback received: %s\n", feedback);  // Show entered feedback
+    printf("Press Enter to continue...\n");
+    getchar();  // Wait for user to press Enter
+}
  
 
-bool feedback() { 
+// Function to display the feedback submenu
+bool feedback() {
+    int choice;
+    while (true) {
+        clear_screen();  // Clear the console
+        printf("----------- Feedback Menu -----------\n");
+        printf("1. Gather Feedbacks\n");
+        printf("2. Return to Main Menu\n");
+        printf("Please enter your choice: ");
+
+        // Prompt the user to make a choice
+        scanf("%d", &choice);
+        getchar();  // Clear the buffer
+
+        switch (choice) {
+        case 1:
+            gatherFeedbacks();  // Gather feedbacks
+            break;
+        case 2:
+            return mainMenu();  // Return to main menu
+        default:
+            clear_screen();
+            printf("Invalid choice. Please try again.\n");
+            return mainMenu();  // Invalid input, continue the loop
+        }
+    }
     return true;
 }

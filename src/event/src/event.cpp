@@ -14,8 +14,8 @@
 
 // Define the structure for an Attendee
 typedef struct Attendee {
-    char name[50];
-    char surname[50];
+    char nameAttendee[50];
+    char surnameAttendee[50];
     char huffmanCode[256]; // Store the Huffman code
 } Attendee;
 
@@ -99,9 +99,9 @@ void saveUser(User* newUser) {
 
 // Hash tablosunu dosyaya kaydetme
 void saveHashTableToFile() {
-    FILE* file = fopen("user_data.bin", "wb");
+    FILE* file = fopen("users.bin", "wb");
     if (file == NULL) {
-        perror("Dosya açýlýrken hata oluþtu");
+        perror("An error occurred while opening the file");
         return;
     }
 
@@ -117,9 +117,9 @@ void saveHashTableToFile() {
 
 // Hash tablosunu dosyadan yükleme
 void loadHashTableFromFile() {
-    FILE* file = fopen("user_data.bin", "rb");
+    FILE* file = fopen("users.bin", "rb");
     if (file == NULL) {
-        perror("Dosya açýlýrken hata oluþtu");
+        perror("An error occurred while opening the file");
         return;
     }
 
@@ -166,7 +166,7 @@ void printHashTable() {
 // Function to compress attendee names using Huffman coding
 void compressAttendeeName(Attendee* attendee) {
     char combined[100];
-    snprintf(combined, sizeof(combined), "%s %s", attendee->name, attendee->surname);
+    snprintf(combined, sizeof(combined), "%s %s", attendee->nameAttendee, attendee->surnameAttendee);
     buildHuffmanTree(combined, attendee); // Pass attendee to store the Huffman code
 }
 
@@ -594,9 +594,9 @@ bool registerAttendees() {
 
     for (int i = 0; i < count; i++) {
         printf("Enter the name of attendee %d: ", i + 1);
-        scanf("%s", attendees[attendeeCount].name);
+        scanf("%s", attendees[attendeeCount].nameAttendee);
         printf("Enter the surname of attendee %d: ", i + 1);
-        scanf("%s", attendees[attendeeCount].surname);
+        scanf("%s", attendees[attendeeCount].surnameAttendee);
         compressAttendeeName(&attendees[attendeeCount]); // Compress name and store Huffman code
         attendeeCount++;
     }
@@ -610,14 +610,68 @@ bool registerAttendees() {
 void printAttendees() {
     printf("\nRegistered Attendees:\n");
     for (int i = 0; i < attendeeCount; i++) {
-        printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].name, attendees[i].surname, attendees[i].huffmanCode);
+        printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].nameAttendee, attendees[i].surnameAttendee, attendees[i].huffmanCode);
     }
 }
 
+
+void planTimelines() {
+    clear_screen();
+    char timeline[100];  // Buffer for input
+    printf("Enter the timeline details (e.g., start and end dates): ");
+    fgets(timeline, sizeof(timeline), stdin);  // Get input from user
+    printf("Timeline planned: %s\n", timeline);  // Show entered timeline
+    printf("Press Enter to continue...\n");
+    getchar();  // Wait for user to press Enter
+}
+
+void organizeActivities() {
+    clear_screen();
+    char activity[100];  // Buffer for input
+    printf("Enter the activity details: ");
+    fgets(activity, sizeof(activity), stdin);  // Get input from user
+    printf("Activity organized: %s\n", activity);  // Show entered activity
+    printf("Press Enter to continue...\n");
+    getchar();  // Wait for user to press Enter
+}
+
+// Function to display the schedule submenu
 bool schedule() {
+    int choice;
+    while (true) {
+        clear_screen();  // Clear the console
+        printf("----------- Schedule Menu -----------\n");
+        printf("1. Plan Timelines\n");
+        printf("2. Organize Activities\n");
+        printf("3. Return to Main Menu\n");
+        printf("Please enter your choice: ");
+
+        // Prompt the user to make a choice
+        scanf("%d", &choice);
+        getchar();  // Clear the buffer
+
+        switch (choice) {
+        case 1:
+            planTimelines();  // Plan timelines
+            break;
+        case 2:
+            organizeActivities();  // Organize activities
+            break;
+        case 3:
+            return mainMenu();  // Return to main menu
+        default:
+            clear_screen();
+            printf("Invalid choice. Please try again.\n");
+            return mainMenu();  // Invalid input, continue the loop
+        }
+    }
     return true;
 }
 
-bool feedback() {
+
+
+ 
+
+bool feedback() { 
     return true;
 }

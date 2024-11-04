@@ -366,22 +366,22 @@ bool authentication() {
         if (logIn()) {
             clear_screen();
             printf("Login successful!\n");
-            return mainMenu();
+            mainMenu();
         }
         else {
             clear_screen();
             printf("Invalid login. Returning to main menu.\n");
-            return mainMenu();
+             mainMenu();
         }
         break;
     case 3:
         guest();
-        return mainMenu();
+        mainMenu();
         break;
     default:
         clear_screen(); 
         printf("Invalid choice. Please try again.\n");
-        return mainMenu();
+        mainMenu();
     }
     return true;
 }
@@ -403,7 +403,8 @@ bool Register() {
     printf("Registration successful! You can now log in.\n");
 
     printHashTable(); // Her kayýttan sonra tabloyu yazdýr
-    return mainMenu();
+     mainMenu();
+     return true;
 }
 
 // Giriþ iþlemi
@@ -415,7 +416,8 @@ bool logIn() {
     printf("Enter your password: ");
     scanf("%s", password);
 
-    return validateLogin(phone, password);
+    validateLogin(phone, password);
+    return true;
 }
 
 // Misafir giriþi fonksiyonu
@@ -453,7 +455,8 @@ bool createEvent() {
     tail = newEvent;
     clear_screen();
     printf("Event created successfully!\n");
-    return mainMenu();
+    mainMenu();
+    return true;
 }
 // Function to manage events
 bool manageEvent() {
@@ -513,10 +516,10 @@ bool manageEvent() {
 
             printf("Event updated successfully!\n");
             clear_screen();
-            return mainMenu(); // Ensure mainMenu() returns bool if needed
+            mainMenu(); // Ensure mainMenu() returns bool if needed
             break;
         case 4:
-            return mainMenu(); // Ensure mainMenu() returns bool if needed
+            mainMenu(); // Ensure mainMenu() returns bool if needed
         default:
             printf("Invalid choice. Please try again.\n");
         }
@@ -544,7 +547,7 @@ bool eventDetails() {
     default:
         clear_screen(); 
         printf("Invalid choice. Please try again.\n");
-        return mainMenu();
+        mainMenu();
     }
     return true;
 }
@@ -576,7 +579,7 @@ bool attendee() {
     default:
         clear_screen();  
         printf("Invalid choice. Please try again.\n");
-        return mainMenu();
+        mainMenu();
     }
     return true;
 }
@@ -602,7 +605,8 @@ bool registerAttendees() {
     }
     clear_screen();  
     printf("%d attendees registered.\n", count);
-    return mainMenu();
+    mainMenu();
+    return true;
 }
 
 
@@ -614,9 +618,144 @@ void printAttendees() {
     }
 }
 
+#define MAX_SIZE 100
+#define STACK_SIZE 100
+#define QUEUE_SIZE 100
+
+// Sparse Matrix Structure
+typedef struct {
+    int row[MAX_SIZE];
+    int col[MAX_SIZE];
+    char value[MAX_SIZE][100];  // Store activity details
+    int size;  // Number of non-zero entries
+} SparseMatrix;
+
+SparseMatrix activityMatrix;  // Global sparse matrix for activities
+
+// Stack Structure
+typedef struct {
+    char items[STACK_SIZE][100];
+    int top;
+} Stack;
+
+Stack activityStack;  // Stack for storing activities
+
+// Queue Structure
+typedef struct {
+    char items[QUEUE_SIZE][100];
+    int front, rear;
+} Queue;
+
+Queue activityQueue;  // Queue for storing activities
+
+// Function to initialize the sparse matrix
+void initializeSparseMatrix() {
+    activityMatrix.size = 0;  // Initialize size to zero
+}
+
+// Function to initialize the stack
+void initializeStack() {
+    activityStack.top = -1;  // Stack is empty
+}
+
+// Function to initialize the queue
+void initializeQueue() {
+    activityQueue.front = 0;
+    activityQueue.rear = 0;  // Queue is empty
+}
+
+// Function to check if stack is full
+bool isStackFull() {
+    return activityStack.top == STACK_SIZE - 1;
+}
+
+// Function to check if stack is empty
+bool isStackEmpty() {
+    return activityStack.top == -1;
+}
+
+// Function to push activity onto stack
+void pushStack(const char* activity) {
+    if (!isStackFull()) {
+        strcpy(activityStack.items[++activityStack.top], activity);
+    }
+    else {
+        printf("Error: Stack is full!\n");
+    }
+}
+
+// Function to pop activity from stack
+void popStack() {
+    if (!isStackEmpty()) {
+        printf("Popped activity: %s\n", activityStack.items[activityStack.top--]);
+    }
+    else {
+        printf("Error: Stack is empty!\n");
+    }
+}
+
+// Function to check if queue is full
+bool isQueueFull() {
+    return activityQueue.rear == QUEUE_SIZE;
+}
+
+// Function to check if queue is empty
+bool isQueueEmpty() {
+    return activityQueue.front == activityQueue.rear;
+}
+
+// Function to enqueue activity into queue
+void enqueue(const char* activity) {
+    if (!isQueueFull()) {
+        strcpy(activityQueue.items[activityQueue.rear++], activity);
+    }
+    else {
+        printf("Error: Queue is full!\n");
+    }
+}
+
+// Function to dequeue activity from queue
+void dequeue() {
+    if (!isQueueEmpty()) {
+        printf("Dequeued activity: %s\n", activityQueue.items[activityQueue.front++]);
+    }
+    else {
+        printf("Error: Queue is empty!\n");
+    }
+}
+
+// Function to add an activity to the sparse matrix
+void addActivityToMatrix(int row, int col, char* activity) {
+    // Remove the newline character if it exists
+    activity[strcspn(activity, "\n")] = 0;
+
+    if (activityMatrix.size < MAX_SIZE) {
+        activityMatrix.row[activityMatrix.size] = row;
+        activityMatrix.col[activityMatrix.size] = col;
+        strcpy(activityMatrix.value[activityMatrix.size], activity);
+        activityMatrix.size++;
+
+        // Push to stack and enqueue
+        pushStack(activity);
+        enqueue(activity);
+    }
+    else {
+        printf("Error: Sparse matrix is full!\n");
+    }
+}
+
+// Function to display the activities in the sparse matrix
+void displayActivities() {
+    printf("Activities in Sparse Matrix:\n");
+    for (int i = 0; i < activityMatrix.size; i++) {
+        printf("Row: %d, Column: %d, Activity: %s\n",
+            activityMatrix.row[i], activityMatrix.col[i], activityMatrix.value[i]);
+    }
+    printf("Press Enter to continue...\n");
+    getchar();  // Wait for user to press Enter
+}
 
 void planTimelines() {
-    clear_screen();
     char timeline[100];  // Buffer for input
     printf("Enter the timeline details (e.g., start and end dates): ");
     fgets(timeline, sizeof(timeline), stdin);  // Get input from user
@@ -626,10 +765,19 @@ void planTimelines() {
 }
 
 void organizeActivities() {
-    clear_screen();
     char activity[100];  // Buffer for input
+    int row, col;
+    printf("Enter the row index for the activity: ");
+    scanf("%d", &row);
+    printf("Enter the column index for the activity: ");
+    scanf("%d", &col);
+    getchar();  // Clear the buffer
+
     printf("Enter the activity details: ");
     fgets(activity, sizeof(activity), stdin);  // Get input from user
+
+    // Add the activity to the sparse matrix
+    addActivityToMatrix(row, col, activity);
     printf("Activity organized: %s\n", activity);  // Show entered activity
     printf("Press Enter to continue...\n");
     getchar();  // Wait for user to press Enter
@@ -639,11 +787,13 @@ void organizeActivities() {
 bool schedule() {
     int choice;
     while (true) {
-        clear_screen();  // Clear the console
         printf("----------- Schedule Menu -----------\n");
         printf("1. Plan Timelines\n");
         printf("2. Organize Activities\n");
-        printf("3. Return to Main Menu\n");
+        printf("3. Display Activities\n");  // New option to display activities
+        printf("4. Pop Activity from Stack\n");  // New option to pop activity from stack
+        printf("5. Dequeue Activity\n");  // New option to dequeue activity
+        printf("6. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
         // Prompt the user to make a choice
@@ -658,38 +808,123 @@ bool schedule() {
             organizeActivities();  // Organize activities
             break;
         case 3:
-            return mainMenu();  // Return to main menu
+            displayActivities();  // Display activities
+            break;
+        case 4:
+            popStack();  // Pop activity from stack
+            break;
+        case 5:
+            dequeue();  // Dequeue activity
+            break;
+        case 6:
+            mainMenu();
         default:
-            clear_screen();
             printf("Invalid choice. Please try again.\n");
-            return mainMenu();  // Invalid input, continue the loop
+            mainMenu();
         }
     }
-    return true;
 }
 
 
-// Function to gather feedback
+#define MAX_FEEDBACKS 100
+
+int feedbackRatings[MAX_FEEDBACKS];  // Feedback ratings array
+int feedbackCount = 0;  // Number of feedback entries
+
+
+// Function to heapify a subtree with root at given index
+void heapify(int arr[], int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
+
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    if (largest != i) {
+        int temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+        heapify(arr, n, largest);
+    }
+}
+
+// Function to perform heap sort
+void heapSort(int arr[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    for (int i = n - 1; i > 0; i--) {
+        int temp = arr[0];
+        arr[0] = arr[i];
+        arr[i] = temp;
+        heapify(arr, i, 0);
+    }
+}
+
+// Function to gather feedback and rating
 void gatherFeedbacks() {
     clear_screen();
     char feedback[256];  // Buffer for input
+    int rating;
+
     printf("Enter your feedback (max 255 characters): ");
-    fgets(feedback, sizeof(feedback), stdin);  // Get input from user
+    fgets(feedback, sizeof(feedback), stdin);  // Get feedback input
     feedback[strcspn(feedback, "\n")] = 0;  // Remove newline character
-    printf("Feedback received: %s\n", feedback);  // Show entered feedback
+
+    // Get rating from user
+    printf("Rate the application (1 to 5): ");
+    scanf("%d", &rating);
+    getchar();  // Clear buffer
+
+    if (rating >= 1 && rating <= 5) {
+        feedbackRatings[feedbackCount++] = rating;  // Add rating to the array
+        printf("Feedback received: %s\n", feedback);
+        printf("Rating received: %d\n", rating);
+    }
+    else {
+        printf("Invalid rating. Please enter a value between 1 and 5.\n");
+    }
+
     printf("Press Enter to continue...\n");
     getchar();  // Wait for user to press Enter
 }
- 
+
+// Function to display sorted ratings
+void displaySortedRatings() {
+    clear_screen();
+    printf("Sorted Ratings:\n");
+
+    if (feedbackCount == 0) {
+        printf("No ratings available.\n");
+        return;
+    }
+
+    int sortedRatings[MAX_FEEDBACKS];
+    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int));  // Copy ratings array
+
+    heapSort(sortedRatings, feedbackCount);  // Sort ratings
+
+    for (int i = 0; i < feedbackCount; i++) {
+        printf("%d ", sortedRatings[i]);
+    }
+    printf("\n");
+    printf("Press Enter to return to Feedback Menu...\n");
+    getchar();  // Wait for user to press Enter
+}
 
 // Function to display the feedback submenu
 bool feedback() {
     int choice;
-    while (true) {
+    while (1) {
         clear_screen();  // Clear the console
         printf("----------- Feedback Menu -----------\n");
-        printf("1. Gather Feedbacks\n");
-        printf("2. Return to Main Menu\n");
+        printf("1. Gather Feedback\n");
+        printf("2. View Sorted Ratings\n");
+        printf("3. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
         // Prompt the user to make a choice
@@ -698,14 +933,15 @@ bool feedback() {
 
         switch (choice) {
         case 1:
-            gatherFeedbacks();  // Gather feedbacks
+            gatherFeedbacks();  // Gather feedback and rating
             break;
         case 2:
-            return mainMenu();  // Return to main menu
+            displaySortedRatings();  // Display sorted ratings
+            break;
+        case 3:
+            mainMenu();
         default:
-            clear_screen();
             printf("Invalid choice. Please try again.\n");
-            return mainMenu();  // Invalid input, continue the loop
         }
     }
     return true;

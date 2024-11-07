@@ -505,19 +505,26 @@ bool eventDetails() {
     return true;
 }
 
-
 #define MAX_ATTENDEES 100
 #define MAX_NAME_LENGTH 50
 
-// Struct to hold attendee details
-typedef struct {
-    char nameAttendee[MAX_NAME_LENGTH];
-    char surnameAttendee[MAX_NAME_LENGTH];
-    char huffmanCode[MAX_NAME_LENGTH]; // Assuming Huffman code is stored as a string
-};
-
 Attendee attendees[MAX_ATTENDEES];
 int attendeeCount = 0;
+
+// Graph Representation for SCC (adjacency matrix)
+int graph[MAX_ATTENDEES][MAX_ATTENDEES] = { 0 };  // 0 means no edge, 1 means edge exists
+
+// B+ Tree Definitions
+#define ORDER 3  // Define the order of the B+ Tree (max children per node)
+
+typedef struct BPlusTreeNode {
+    bool isLeaf;
+    int numKeys;
+    char* keys[ORDER];
+    struct BPlusTreeNode* children[ORDER + 1];
+} BPlusTreeNode;
+
+BPlusTreeNode* root = NULL;
 
 // Function prototypes
 void kmpSearch(char* pattern);
@@ -525,6 +532,16 @@ void computeLPSArray(char* pattern, int M, int* lps);
 void compressAttendeeName(Attendee* attendee);
 bool registerAttendees();
 void printAttendees();
+void insertToBPlusTree(char* key);
+BPlusTreeNode* createBPlusTreeNode(bool isLeaf);
+void printBPlusTree(BPlusTreeNode* node);
+
+// SCC Function Prototypes
+void dfs(int v, bool visited[], int component[], int* componentIndex);
+void dfsUtil(int v, bool visited[], int* order);
+void bfs(int startNode, bool visited[]);
+
+void findStronglyConnectedComponents();
 
 // Knuth-Morris-Pratt (KMP) search function
 void kmpSearch(char* pattern) {
@@ -612,6 +629,7 @@ bool registerAttendees() {
         printf("Enter the surname of attendee %d: ", i + 1);
         scanf("%s", attendees[attendeeCount].surnameAttendee);
         compressAttendeeName(&attendees[attendeeCount]); // Compress name and store Huffman code
+        insertToBPlusTree(attendees[attendeeCount].nameAttendee); // Insert attendee name into B+ Tree
         attendeeCount++;
     }
     printf("%d attendees registered.\n", count);
@@ -628,6 +646,140 @@ void printAttendees() {
     mainMenu();
 }
 
+// Function to create a B+ Tree node
+BPlusTreeNode* createBPlusTreeNode(bool isLeaf) {
+    BPlusTreeNode* newNode = (BPlusTreeNode*)malloc(sizeof(BPlusTreeNode));
+    newNode->isLeaf = isLeaf;
+    newNode->numKeys = 0;
+    for (int i = 0; i < ORDER; i++) {
+        newNode->keys[i] = NULL;
+        newNode->children[i] = NULL;
+    }
+    newNode->children[ORDER] = NULL;
+    return newNode;
+}
+
+// Function to insert a key into the B+ Tree
+void insertToBPlusTree(char* key) {
+    if (root == NULL) {
+        root = createBPlusTreeNode(true);
+    }
+
+    // Insert into the B+ Tree (this would require splitting nodes as per B+ Tree insertion logic)
+    // Simplified insertion for now
+    BPlusTreeNode* currentNode = root;
+
+    if (currentNode->numKeys < ORDER - 1) {
+        currentNode->keys[currentNode->numKeys] = key;
+        currentNode->numKeys++;
+    }
+    else {
+        // Node split logic for when the node is full
+        printf("Node split logic needed here.\n");
+    }
+}
+
+// Function to print B+ Tree (In-order traversal)
+void printBPlusTree(BPlusTreeNode* node) {
+    if (node == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < node->numKeys; i++) {
+        printf("%s ", node->keys[i]);
+    }
+    printf("\n");
+
+    if (node->isLeaf) {
+        return;
+    }
+
+    for (int i = 0; i <= node->numKeys; i++) {
+        printBPlusTree(node->children[i]);
+    }
+}
+
+// DFS algorithm (Depth-First Search)
+void dfs(int v, bool visited[], int component[], int* componentIndex) {
+    visited[v] = true;
+    component[*componentIndex] = v;
+    (*componentIndex)++;
+
+    for (int i = 0; i < attendeeCount; i++) {
+        // Here, you should add the edges in your graph.
+       // graph[v][i] == 1 indicates the presence of an edge between v and i.
+
+        if (graph[v][i] == 1 && !visited[i]) {
+            dfs(i, visited, component, componentIndex);
+        }
+    }
+}
+
+// DFS for topological sorting
+void dfsUtil(int v, bool visited[], int* order) {
+    visited[v] = true;
+
+    for (int i = 0; i < attendeeCount; i++) {
+        if (graph[v][i] == 1 && !visited[i]) {
+            dfsUtil(i, visited, order);
+        }
+    }
+
+    order[(*order)] = v;
+    (*order)++;
+}
+
+
+// BFS algorithm (Breadth-First Search)
+void bfs(int startNode, bool visited[]) {
+    int queue[MAX_ATTENDEES];
+    int front = 0, rear = 0;
+
+    visited[startNode] = true;
+    queue[rear++] = startNode;
+
+    while (front < rear) {
+        int currentNode = queue[front++];  // Remove a node from the queue
+        printf("Visiting node: %d\n", currentNode);
+
+        for (int i = 0; i < attendeeCount; i++) {
+            // Here, you should add the edges in your graph.
+            // graph[currentNode][i] == 1 indicates the presence of an edge between currentNode and i.
+
+            if (graph[currentNode][i] == 1 && !visited[i]) {
+                visited[i] = true;
+                queue[rear++] = i;  // Add a new node to the queue
+
+            }
+        }
+    }
+}
+
+
+// Finding Strongly Connected Components
+
+void findStronglyConnectedComponents() {
+    bool visited[MAX_ATTENDEES] = { 0 };
+    int component[MAX_ATTENDEES];
+    int componentIndex = 0;
+
+    // After filling the graph, the DFS function will run.
+    // After filling your graph, you can find the strongly connected components with this function.
+
+    for (int i = 0; i < attendeeCount; i++) {
+        if (!visited[i]) {
+            dfs(i, visited, component, &componentIndex);
+
+            printf("SCC: ");
+            for (int j = 0; j < componentIndex; j++) {
+                printf("%d ", component[j]);
+            }
+            printf("\n");
+            componentIndex = 0;
+        }
+    }
+}
+
 // Main attendee menu function
 bool attendee() {
     int choice;
@@ -635,30 +787,39 @@ bool attendee() {
     printf("1. Register Attendees\n");
     printf("2. Track Attendees\n");
     printf("3. Print Attendees\n");
+    printf("4. Return to Main Menu\n");
     printf("Please enter your choice: ");
     scanf("%d", &choice);
 
     switch (choice) {
     case 1:
+        // Call the function to register attendees
         registerAttendees();
         break;
     case 2: {
         char searchName[50];
         printf("Enter the name to search: ");
         scanf("%s", searchName);
-        kmpSearch(searchName);  // Search in Huffman code
-        mainMenu();
+        // Search for the attendee's name in the Huffman code
+        kmpSearch(searchName);
+        mainMenu();  // Call main menu after search
         break;
     }
     case 3:
+        // Print all the attendees
         printAttendees();
         break;
+
+    case 4:
+
+        return mainMenu (); // Return to Main Menu
+
     default:
+        // Handle invalid choices
         printf("Invalid choice. Please try again.\n");
     }
     return true;
 }
-
 
 #define MAX_SIZE 100 
 #define STACK_SIZE 100
@@ -915,7 +1076,7 @@ bool schedule() {
             dequeue();  // Dequeue activity
             break;
         case 7:
-            return mainMenu; // Return to Main Menu
+            return mainMenu (); // Return to Main Menu
         default:
             printf("Invalid choice. Please try again.\n");
         }
@@ -962,119 +1123,26 @@ void heapSort(int arr[], int n) {
 
 #define MAX_FEEDBACKS 4
 
-int feedbackRatings[MAX_FEEDBACKS];
-int feedbackCount = 0;
-
-
-// Function to gather feedback and rating
+// Function to gather feedback
 void gatherFeedbacks() {
     clear_screen();
     char feedback[256];  // Buffer for input
-    int rating;
-
     printf("Enter your feedback (max 255 characters): ");
-    fgets(feedback, sizeof(feedback), stdin);  // Get feedback input
+    fgets(feedback, sizeof(feedback), stdin);  // Get input from user
     feedback[strcspn(feedback, "\n")] = 0;  // Remove newline character
-
-    // Get rating from user
-    printf("Rate the application (1 to 5): ");
-    scanf("%d", &rating);
-    getchar();  // Clear buffer
-
-    if (rating >= 1 && rating <= 5) {
-        feedbackRatings[feedbackCount++] = rating;  // Add rating to the array
-        printf("Feedback received: %s\n", feedback);
-        printf("Rating received: %d\n", rating);
-    }
-    else {
-        printf("Invalid rating. Please enter a value between 1 and 5.\n");
-    }
-
+    printf("Feedback received: %s\n", feedback);  // Show entered feedback
     printf("Press Enter to continue...\n");
     getchar();  // Wait for user to press Enter
-}
-
-// Function to display sorted ratings
-void displaySortedRatings() {
-    clear_screen();
-    printf("Sorted Ratings:\n");
-
-    if (feedbackCount == 0) {
-        printf("No ratings available.\n");
-        return;
-    }
-
-    int sortedRatings[MAX_FEEDBACKS];
-    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int));  // Copy ratings array
-
-    // Sorting (you can use any sorting algorithm, here using a simple bubble sort as an example)
-    for (int i = 0; i < feedbackCount - 1; i++) {
-        for (int j = 0; j < feedbackCount - i - 1; j++) {
-            if (sortedRatings[j] > sortedRatings[j + 1]) {
-                int temp = sortedRatings[j];
-                sortedRatings[j] = sortedRatings[j + 1];
-                sortedRatings[j + 1] = temp;
-            }
-        }
-    }
-
-    for (int i = 0; i < feedbackCount; i++) {
-        printf("%d ", sortedRatings[i]);
-    }
-    printf("\n");
-    printf("Press Enter to return to Feedback Menu...\n");
-    getchar();  // Wait for user to press Enter
-}
-
-// Function to perform BFS (Breadth-First Search)
-void BFS(int startNode, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    bool visited[MAX_FEEDBACKS] = { false };
-    int queue[MAX_FEEDBACKS], front = 0, rear = 0;
-
-    // Mark the starting node as visited and enqueue it
-    visited[startNode] = true;
-    queue[rear++] = startNode;
-
-    printf("BFS from Feedback %d:\n", startNode + 1);
-    while (front < rear) {
-        int node = queue[front++];
-        printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
-
-        // Enqueue all unvisited connected nodes
-        for (int i = 0; i < n; i++) {
-            if (adjMatrix[node][i] == 1 && !visited[i]) {
-                visited[i] = true;
-                queue[rear++] = i;
-            }
-        }
-    }
-}
-
-// Function to perform DFS (Depth-First Search)
-void DFS(int node, bool visited[MAX_FEEDBACKS], int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    visited[node] = true;
-    printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
-
-    // Visit all connected nodes
-    for (int i = 0; i < n; i++) {
-        if (adjMatrix[node][i] == 1 && !visited[i]) {
-            printf("Visiting connected feedback %d...\n", i + 1);  // Debug message for DFS
-            DFS(i, visited, adjMatrix, n);
-        }
-    }
 }
 
 // Function to display the feedback submenu
 bool feedback() {
     int choice;
-    while (1) {
+    while (true) {
         clear_screen();  // Clear the console
         printf("----------- Feedback Menu -----------\n");
-        printf("1. Gather Feedback\n");
-        printf("2. View Sorted Ratings\n");
-        printf("3. Perform BFS\n");
-        printf("4. Perform DFS\n");
-        printf("5. Return to Main Menu\n");
+        printf("1. Gather Feedbacks\n");
+        printf("2. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
         // Prompt the user to make a choice
@@ -1083,55 +1151,16 @@ bool feedback() {
 
         switch (choice) {
         case 1:
-            gatherFeedbacks();  // Gather feedback and rating
+            gatherFeedbacks();  // Gather feedbacks
             break;
         case 2:
-            displaySortedRatings();  // Display sorted ratings
-            break;
-        case 3:
-        {
-            // Get the starting node for BFS
-            int startNode;
-            printf("Enter the starting feedback number for BFS (1 to %d): ", feedbackCount);
-            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
-                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
-                while (getchar() != '\n'); // Clear the invalid input
-            }
-            startNode--;  // Convert to 0-based index
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
-
-            // Example: Manually define the adjacency matrix
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
-            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
-
-            BFS(startNode, adjMatrix, feedbackCount);  // Call BFS
-        }
-        break;
-        case 4:
-        {
-            // Get the starting node for DFS
-            int startNode;
-            printf("Enter the starting feedback number for DFS (1 to %d): ", feedbackCount);
-            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
-                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
-                while (getchar() != '\n'); // Clear the invalid input
-            }
-            startNode--;  // Convert to 0-based index
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
-
-            // Example: Manually define the adjacency matrix
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
-            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
-
-            bool visited[MAX_FEEDBACKS] = { false };
-            DFS(startNode, visited, adjMatrix, feedbackCount);  // Call DFS
-        }
-        break;
-        case 5:
-            return true;  // Return to main menu
+            return mainMenu() ;  // Return to main menu
         default:
+            clear_screen();
             printf("Invalid choice. Please try again.\n");
+            // Invalid input, continue the loop
         }
     }
-    return true;
+    return true ;
 }
+

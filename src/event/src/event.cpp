@@ -9,7 +9,6 @@
 #include <stdint.h>
 
 #define TABLE_SIZE 100
-#define MAX_ATTENDEES 100
 #define MAX_TREE_NODES 256
 
 // Define the structure for an Attendee
@@ -44,10 +43,6 @@ void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
 MinHeapNode* extractMin(MinHeap* minHeap);
 void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
 void printAttendees(); // New function declaration
-
-// Global variables
-Attendee attendees[MAX_ATTENDEES];
-int attendeeCount = 0;
 
 
 void clear_screen() {
@@ -163,13 +158,6 @@ void printHashTable() {
     printf("End of Hash Table.\n");
 }
 
-// Function to compress attendee names using Huffman coding
-void compressAttendeeName(Attendee* attendee) {
-    char combined[100];
-    snprintf(combined, sizeof(combined), "%s %s", attendee->nameAttendee, attendee->surnameAttendee);
-    buildHuffmanTree(combined, attendee); // Pass attendee to store the Huffman code
-}
-
 // Function to create a Min Heap
 MinHeap* createMinHeap(unsigned capacity) {
     MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
@@ -257,43 +245,6 @@ void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanC
     }
 }
 
-// KMP search function
-void kmpSearch(char* pattern) {
-    int M = strlen(pattern);
-    int found = false;
-
-    for (int i = 0; i < attendeeCount; i++) {
-        // Here we need to use the stored Huffman code instead of the name for matching
-        // Implement KMP algorithm with Huffman coded names
-    }
-
-    if (!found) {
-        printf("No match found.\n");
-    }
-}
-
-// Compute LPS array used in KMP pattern search
-void computeLPSArray(char* pattern, int M, int* lps) {
-    int length = 0;
-    lps[0] = 0;
-    int i = 1;
-    while (i < M) {
-        if (pattern[i] == pattern[length]) {
-            length++;
-            lps[i] = length;
-            i++;
-        }
-        else {
-            if (length != 0) {
-                length = lps[length - 1];
-            }
-            else {
-                lps[i] = 0;
-                i++;
-            }
-        }
-    }
-}
 
 
 bool validateLogin(const char* phone, const char* password) {
@@ -312,7 +263,7 @@ bool validateLogin(const char* phone, const char* password) {
 // Ana menü
 bool mainMenu() {
     int choice;
-    printf("-----------------------------------\n");
+    printf("\n-----------------------------------\n");
     printf("WELCOME TO OUR PLANNER!!\n");
     printf("-----------------------------------\n");
     printf("1. User Authentication\n");
@@ -353,6 +304,7 @@ bool mainMenu() {
 // Kullanýcý doðrulama
 bool authentication() {
     int login;
+    printf("----------- Authentication Menu -----------\n"); 
     printf("1. Register\n");
     printf("2. Login\n");
     printf("3. Guest Login\n");
@@ -375,7 +327,7 @@ bool authentication() {
         }
         break;
     case 3:
-        guest();
+        guest(); 
         mainMenu();
         break;
     default:
@@ -532,6 +484,7 @@ bool manageEvent() {
 // Event Details main menu
 bool eventDetails() {
     int event;
+    printf("\n----------- Event Menu -----------\n");
     printf("1. Create Event\n");
     printf("2. Manage Event\n");
     printf("Please enter your choice: ");
@@ -552,39 +505,97 @@ bool eventDetails() {
     return true;
 }
 
-// Main attendee function
-bool attendee() {
-    int choice;
-    printf("1. Register Attendees\n");
-    printf("2. Track Attendees\n");
-    printf("3. Print Attendees\n"); // New option for printing attendees
-    printf("Please enter your choice: ");
-    scanf("%d", &choice);
 
-    switch (choice) {
-    case 1:
-        registerAttendees();
-        break;
-    case 2: {
-        clear_screen();  
-        char searchName[50];
-        printf("Enter the name to search: ");
-        scanf("%s", searchName);
-        kmpSearch(searchName);
-        break;
+#define MAX_ATTENDEES 100
+#define MAX_NAME_LENGTH 50
+
+// Struct to hold attendee details
+typedef struct {
+    char nameAttendee[MAX_NAME_LENGTH];
+    char surnameAttendee[MAX_NAME_LENGTH];
+    char huffmanCode[MAX_NAME_LENGTH]; // Assuming Huffman code is stored as a string
+};
+
+Attendee attendees[MAX_ATTENDEES];
+int attendeeCount = 0;
+
+// Function prototypes
+void kmpSearch(char* pattern);
+void computeLPSArray(char* pattern, int M, int* lps);
+void compressAttendeeName(Attendee* attendee);
+bool registerAttendees();
+void printAttendees();
+
+// Knuth-Morris-Pratt (KMP) search function
+void kmpSearch(char* pattern) {
+    int M = strlen(pattern);
+    bool found = false;
+
+    for (int i = 0; i < attendeeCount; i++) {
+        // Perform KMP search on the Huffman code of each attendee
+        char* huffmanCode = attendees[i].huffmanCode;
+        int N = strlen(huffmanCode);
+
+        int* lps = new int[M];  // Dinamik bellek ayýrma
+
+        computeLPSArray(pattern, M, lps);
+
+        int j = 0;  // index for pattern
+        for (int i = 0; i < N; i++) {
+            while (j > 0 && pattern[j] != huffmanCode[i]) {
+                j = lps[j - 1];
+            }
+
+            if (pattern[j] == huffmanCode[i]) {
+                j++;
+            }
+
+            if (j == M) {
+                printf("Pattern found in Huffman code of attendee: %s %s\n", attendees[i].nameAttendee, attendees[i].surnameAttendee);
+                found = true;
+                break;
+            }
+        }
     }
-    case 3: // Call printAttendees function
-        printAttendees();
-        break;
-    default:
-        clear_screen();  
-        printf("Invalid choice. Please try again.\n");
-        mainMenu();
+
+    if (!found) {
+        printf("No match found.\n");
     }
-    return true;
 }
 
-// Function to register attendees
+// Compute the LPS array for the pattern (used in KMP search)
+void computeLPSArray(char* pattern, int M, int* lps) {
+    int length = 0; // length of the previous longest prefix suffix
+    lps[0] = 0; // LPS[0] is always 0
+    int i = 1;
+
+    // Preprocessing the pattern
+    while (i < M) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        }
+        else {
+            if (length != 0) {
+                length = lps[length - 1];
+            }
+            else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+// Function to compress and store the Huffman code for each attendee's name
+void compressAttendeeName(Attendee* attendee) {
+    // For the sake of this example, we will just encode the name as a simple placeholder.
+    // In real scenarios, we should implement an actual Huffman compression function.
+    strcpy(attendee->huffmanCode, attendee->nameAttendee);  // Example: Huffman code is just the name for now
+}
+
+// Main function for registering attendees
 bool registerAttendees() {
     int count;
     printf("How many people will attend? ");
@@ -603,22 +614,53 @@ bool registerAttendees() {
         compressAttendeeName(&attendees[attendeeCount]); // Compress name and store Huffman code
         attendeeCount++;
     }
-    clear_screen();  
     printf("%d attendees registered.\n", count);
     mainMenu();
     return true;
 }
 
-
-// Function to print registered attendees
+// Function to print all registered attendees and their Huffman codes
 void printAttendees() {
     printf("\nRegistered Attendees:\n");
     for (int i = 0; i < attendeeCount; i++) {
         printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].nameAttendee, attendees[i].surnameAttendee, attendees[i].huffmanCode);
     }
+    mainMenu();
 }
 
-#define MAX_SIZE 100
+// Main attendee menu function
+bool attendee() {
+    int choice;
+    printf("----------- Attendee Menu -----------\n");
+    printf("1. Register Attendees\n");
+    printf("2. Track Attendees\n");
+    printf("3. Print Attendees\n");
+    printf("Please enter your choice: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+    case 1:
+        registerAttendees();
+        break;
+    case 2: {
+        char searchName[50];
+        printf("Enter the name to search: ");
+        scanf("%s", searchName);
+        kmpSearch(searchName);  // Search in Huffman code
+        mainMenu();
+        break;
+    }
+    case 3:
+        printAttendees();
+        break;
+    default:
+        printf("Invalid choice. Please try again.\n");
+    }
+    return true;
+}
+
+
+#define MAX_SIZE 100 
 #define STACK_SIZE 100
 #define QUEUE_SIZE 100
 
@@ -647,6 +689,56 @@ typedef struct {
 } Queue;
 
 Queue activityQueue;  // Queue for storing activities
+
+// XOR Linked List Structure
+typedef struct XORNode {
+    char value[100];
+    struct XORNode* both; // XOR of previous and next node
+} XORNode;
+
+XORNode* xorHead = NULL; // Head of the XOR linked list
+
+// Function to get the XOR of two pointers
+XORNode* XOR(XORNode* a, XORNode* b) {
+    return (XORNode*)((uintptr_t)(a) ^ (uintptr_t)(b));
+}
+
+// Function to add a new node to the XOR linked list
+void addToXORList(const char* value) {
+    XORNode* newNode = (XORNode*)malloc(sizeof(XORNode));
+    strcpy(newNode->value, value);
+    newNode->both = XOR(xorHead, NULL); // Set both to XOR of head and NULL
+
+    if (xorHead != NULL) {
+        // Update head's both pointer
+        XORNode* next = XOR(xorHead->both, NULL);
+        xorHead->both = XOR(newNode, next);
+    }
+    xorHead = newNode; // Move head to the new node
+}
+
+
+
+// Function to display the XOR linked list
+void displayXORList() {
+    XORNode* current = xorHead;
+    XORNode* prev = NULL;
+    XORNode* next;
+
+    printf("Activity History: \n");
+    while (current != NULL) {
+        printf("%s -> ", current->value);
+        next = XOR(prev, current->both); // Get the next node using XOR
+        prev = current;
+        current = next;
+    }
+    printf("NULL\n");
+}
+
+// Function to initialize the XOR linked list
+void initializeXORList() {
+    xorHead = NULL;  // Initialize head as NULL
+}
 
 // Function to initialize the sparse matrix
 void initializeSparseMatrix() {
@@ -738,6 +830,8 @@ void addActivityToMatrix(int row, int col, char* activity) {
         // Push to stack and enqueue
         pushStack(activity);
         enqueue(activity);
+        // Add to XOR linked list
+        addToXORList(activity);  // Adding activity to XOR linked list
     }
     else {
         printf("Error: Sparse matrix is full!\n");
@@ -791,9 +885,10 @@ bool schedule() {
         printf("1. Plan Timelines\n");
         printf("2. Organize Activities\n");
         printf("3. Display Activities\n");  // New option to display activities
-        printf("4. Pop Activity from Stack\n");  // New option to pop activity from stack
-        printf("5. Dequeue Activity\n");  // New option to dequeue activity
-        printf("6. Return to Main Menu\n");
+        printf("4. Display Activity History\n");  // Updated option to display XOR activities
+        printf("5. Pop Activity from Stack\n");  // New option to pop activity from stack
+        printf("6. Dequeue Activity\n");  // New option to dequeue activity
+        printf("7. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
         // Prompt the user to make a choice
@@ -811,25 +906,23 @@ bool schedule() {
             displayActivities();  // Display activities
             break;
         case 4:
-            popStack();  // Pop activity from stack
+            displayXORList();  // Display activity history from XOR linked list
             break;
         case 5:
-            dequeue();  // Dequeue activity
+            popStack();  // Pop activity from stack
             break;
         case 6:
-            mainMenu();
+            dequeue();  // Dequeue activity
+            break;
+        case 7:
+            return mainMenu; // Return to Main Menu
         default:
             printf("Invalid choice. Please try again.\n");
-            mainMenu();
         }
     }
+
+    return true; // Added return statement here
 }
-
-
-#define MAX_FEEDBACKS 100
-
-int feedbackRatings[MAX_FEEDBACKS];  // Feedback ratings array
-int feedbackCount = 0;  // Number of feedback entries
 
 
 // Function to heapify a subtree with root at given index
@@ -864,6 +957,14 @@ void heapSort(int arr[], int n) {
         heapify(arr, i, 0);
     }
 }
+
+
+
+#define MAX_FEEDBACKS 4
+
+int feedbackRatings[MAX_FEEDBACKS];
+int feedbackCount = 0;
+
 
 // Function to gather feedback and rating
 void gatherFeedbacks() {
@@ -906,7 +1007,16 @@ void displaySortedRatings() {
     int sortedRatings[MAX_FEEDBACKS];
     memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int));  // Copy ratings array
 
-    heapSort(sortedRatings, feedbackCount);  // Sort ratings
+    // Sorting (you can use any sorting algorithm, here using a simple bubble sort as an example)
+    for (int i = 0; i < feedbackCount - 1; i++) {
+        for (int j = 0; j < feedbackCount - i - 1; j++) {
+            if (sortedRatings[j] > sortedRatings[j + 1]) {
+                int temp = sortedRatings[j];
+                sortedRatings[j] = sortedRatings[j + 1];
+                sortedRatings[j + 1] = temp;
+            }
+        }
+    }
 
     for (int i = 0; i < feedbackCount; i++) {
         printf("%d ", sortedRatings[i]);
@@ -914,6 +1024,44 @@ void displaySortedRatings() {
     printf("\n");
     printf("Press Enter to return to Feedback Menu...\n");
     getchar();  // Wait for user to press Enter
+}
+
+// Function to perform BFS (Breadth-First Search)
+void BFS(int startNode, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
+    bool visited[MAX_FEEDBACKS] = { false };
+    int queue[MAX_FEEDBACKS], front = 0, rear = 0;
+
+    // Mark the starting node as visited and enqueue it
+    visited[startNode] = true;
+    queue[rear++] = startNode;
+
+    printf("BFS from Feedback %d:\n", startNode + 1);
+    while (front < rear) {
+        int node = queue[front++];
+        printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
+
+        // Enqueue all unvisited connected nodes
+        for (int i = 0; i < n; i++) {
+            if (adjMatrix[node][i] == 1 && !visited[i]) {
+                visited[i] = true;
+                queue[rear++] = i;
+            }
+        }
+    }
+}
+
+// Function to perform DFS (Depth-First Search)
+void DFS(int node, bool visited[MAX_FEEDBACKS], int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
+    visited[node] = true;
+    printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
+
+    // Visit all connected nodes
+    for (int i = 0; i < n; i++) {
+        if (adjMatrix[node][i] == 1 && !visited[i]) {
+            printf("Visiting connected feedback %d...\n", i + 1);  // Debug message for DFS
+            DFS(i, visited, adjMatrix, n);
+        }
+    }
 }
 
 // Function to display the feedback submenu
@@ -924,7 +1072,9 @@ bool feedback() {
         printf("----------- Feedback Menu -----------\n");
         printf("1. Gather Feedback\n");
         printf("2. View Sorted Ratings\n");
-        printf("3. Return to Main Menu\n");
+        printf("3. Perform BFS\n");
+        printf("4. Perform DFS\n");
+        printf("5. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
         // Prompt the user to make a choice
@@ -939,7 +1089,46 @@ bool feedback() {
             displaySortedRatings();  // Display sorted ratings
             break;
         case 3:
-            mainMenu();
+        {
+            // Get the starting node for BFS
+            int startNode;
+            printf("Enter the starting feedback number for BFS (1 to %d): ", feedbackCount);
+            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
+                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
+                while (getchar() != '\n'); // Clear the invalid input
+            }
+            startNode--;  // Convert to 0-based index
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
+
+            // Example: Manually define the adjacency matrix
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
+            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
+
+            BFS(startNode, adjMatrix, feedbackCount);  // Call BFS
+        }
+        break;
+        case 4:
+        {
+            // Get the starting node for DFS
+            int startNode;
+            printf("Enter the starting feedback number for DFS (1 to %d): ", feedbackCount);
+            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
+                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
+                while (getchar() != '\n'); // Clear the invalid input
+            }
+            startNode--;  // Convert to 0-based index
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
+
+            // Example: Manually define the adjacency matrix
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
+            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
+
+            bool visited[MAX_FEEDBACKS] = { false };
+            DFS(startNode, visited, adjMatrix, feedbackCount);  // Call DFS
+        }
+        break;
+        case 5:
+            return true;  // Return to main menu
         default:
             printf("Invalid choice. Please try again.\n");
         }

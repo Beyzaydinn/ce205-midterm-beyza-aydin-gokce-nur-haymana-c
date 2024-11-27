@@ -3,20 +3,30 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <vector> // std::vector kullanýmý için
+#include <vector>
 #include <stdbool.h>
 #include <limits.h>
 #include <stdint.h>
+#include <ctype.h>
+
+
+void clear_screen() {
+#if defined(_WIN32) || defined(_WIN64)
+    system("cls");  // for Windows
+#elif defined(_linux_)
+    system("clear");  // for Linux and WSL
+#endif
+}
 
 #define TABLE_SIZE 100
 #define MAX_TREE_NODES 256
 
 // Define the structure for an Attendee
-typedef struct Attendee {
+typedef struct AttendeE {
     char nameAttendee[50];
     char surnameAttendee[50];
     char huffmanCode[256]; // Store the Huffman code
-} Attendee;
+} AttendeE;
 
 // Define a structure for the Huffman tree nodes
 typedef struct MinHeapNode {
@@ -29,143 +39,18 @@ typedef struct MinHeapNode {
 typedef struct MinHeap {
     unsigned size;
     unsigned capacity;
-    MinHeapNode** array;
+    MinHeapNode** array;  // Pointer to an array of MinHeapNode pointers
 } MinHeap;
-
-// Function declarations
-void kmpSearch(char* pattern);
-void computeLPSArray(char* pattern, int M, int* lps);
-void compressAttendeeName(Attendee* attendee);
-void buildHuffmanTree(char* str, Attendee* attendee);
-MinHeap* createMinHeap(unsigned capacity);
-MinHeapNode* createMinHeapNode(char data, unsigned freq);
-void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
-MinHeapNode* extractMin(MinHeap* minHeap);
-void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
-void printAttendees(); // New function declaration
-
-
-void clear_screen() {
-#if defined(_WIN32) || defined(_WIN64)
-    system("cls");  // Windows için
-#elif defined(__linux__)
-    system("clear");  // Linux ve WSL için
-#endif
-}
-
-typedef struct User {
-    char name[50];
-    char surname[50];
-    char phone[20];
-    char password[20];
-    struct User* next;  // Çarpýþmalarý çözmek için baðlý liste kullanýyoruz
-} User;
-
-User* hashTable[TABLE_SIZE];
-
-// Structure definitions
-typedef struct Event {
-    char type[50];
-    char date[20];
-    char color[20];
-    char concept[50];
-    struct Event* prev;
-    struct Event* next;
-} Event;
-
-Event* head = NULL;
-Event* tail = NULL;
-
-// Hash fonksiyonu
-unsigned int hash(const char* phone) {
-    unsigned int hash = 0;
-    for (int i = 0; i < strlen(phone); i++) {
-        hash = (hash * 31 + phone[i]) % TABLE_SIZE;
-    }
-    return hash;
-}
-
-// Kullanýcýyý hash tablosuna kaydetme
-void saveUser(User* newUser) {
-    unsigned int index = hash(newUser->phone);
-    newUser->next = hashTable[index];
-    hashTable[index] = newUser;
-}
-
-// Hash tablosunu dosyaya kaydetme
-void saveHashTableToFile() {
-    FILE* file = fopen("users.bin", "wb");
-    if (file == NULL) {
-        perror("An error occurred while opening the file");
-        return;
-    }
-
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        User* current = hashTable[i];
-        while (current != NULL) {
-            fwrite(current, sizeof(User), 1, file);
-            current = current->next;
-        }
-    }
-    fclose(file);
-}
-
-// Hash tablosunu dosyadan yükleme
-void loadHashTableFromFile() {
-    FILE* file = fopen("users.bin", "rb");
-    if (file == NULL) {
-        perror("An error occurred while opening the file");
-        return;
-    }
-
-    while (!feof(file)) {
-        User* newUser = (User*)malloc(sizeof(User));
-        if (fread(newUser, sizeof(User), 1, file) == 1) {
-            newUser->next = NULL;
-            saveUser(newUser);
-        }
-        else {
-            free(newUser);
-        }
-    }
-    fclose(file);
-}
-
-// Kullanýcý verilerini dosyaya ve hash tablosuna kaydetme
-void saveUserData(User user) {
-    User* newUser = (User*)malloc(sizeof(User));
-    *newUser = user;
-    saveUser(newUser); // Hash tablosuna ekle
-    saveHashTableToFile(); // Dosyaya kaydet
-    clear_screen();
-}
-
-// Hash tablosunun içeriðini yazdýrma
-void printHashTable() {
-    printf("Hash Table Contents:\n");
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        User* current = hashTable[i];
-        if (current == NULL) {
-            continue; // Boþ olan hücreleri atla
-        }
-        printf("Index %d:\n", i);
-        while (current != NULL) {
-            printf(" Name: %s %s, Phone: %s, Password: %s\n",
-                current->name, current->surname, current->phone, current->password);
-            current = current->next;
-        }
-    }
-    printf("End of Hash Table.\n");
-}
 
 // Function to create a Min Heap
 MinHeap* createMinHeap(unsigned capacity) {
-    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
-    minHeap->size = 0;
-    minHeap->capacity = capacity;
-    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode*));
+    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));  // We allocate memory for MinHeap
+    minHeap->size = 0;  //  We set the initial size of the stack to 0
+    minHeap->capacity = capacity;  // We adjust the capacity
+    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode*));  // Array for MinHeapNode pointers
     return minHeap;
 }
+
 
 // Function to create a Min Heap Node
 MinHeapNode* createMinHeapNode(char data, unsigned freq) {
@@ -190,8 +75,131 @@ MinHeapNode* extractMin(MinHeap* minHeap) {
     return temp;
 }
 
+// Function declarations
+void kmpSearch(char* pattern);
+void computeLPSArray(char* pattern, int M, int* lps);
+void compressAttendeeName(AttendeE* attendee);
+void buildHuffmanTree(char* str, AttendeE* attendee);
+MinHeap* createMinHeap(unsigned capacity);
+MinHeapNode* createMinHeapNode(char data, unsigned freq);
+void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
+MinHeapNode* extractMin(MinHeap* minHeap);
+void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
+void printAttendees(); // New function declaration
+void progressiveOverflowAlgorithm(); // New function declaration
+
+typedef struct User {
+    char name[50];
+    char surname[50];
+    char phone[20];
+    char password[20];
+    struct User* next;  // We use linked list to resolve collisions
+} User;
+
+User* hashTable[TABLE_SIZE];
+
+// Structure definitions
+typedef struct Event {
+    char type[50];
+    char date[20];
+    char color[20];
+    char concept[50];
+    struct Event* prev;
+    struct Event* next;
+} Event;
+
+Event* head = NULL;
+Event* tail = NULL;
+
+// Hash function
+unsigned int hash(const char* phone) {
+    unsigned int hash = 0;
+    for (int i = 0; i < strlen(phone); i++) {
+        hash = (hash * 31 + phone[i]) % TABLE_SIZE;
+    }
+    return hash;
+}
+
+// Saving user to hash table
+void saveUser(User* newUser) {
+    unsigned int index = hash(newUser->phone);
+    newUser->next = hashTable[index];
+    hashTable[index] = newUser;
+}
+
+// Saving hash table to file
+void saveHashTableToFile() {
+    FILE* file = fopen("users.bin", "wb");
+    if (file == NULL) {
+        perror("An error occurred while opening the file");
+        return;
+    }
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        User* current = hashTable[i];
+        while (current != NULL) {
+            fwrite(current, sizeof(User), 1, file);
+            current = current->next;
+        }
+    }
+    fclose(file);
+}
+
+// Loading hash table from file
+void loadHashTableFromFile() {
+    FILE* file = fopen("users.bin", "rb");
+    if (file == NULL) {
+        perror("An error occurred while opening the file");
+        return;
+    }
+
+    while (!feof(file)) {
+        User* newUser = (User*)malloc(sizeof(User));
+        if (fread(newUser, sizeof(User), 1, file) == 1) {
+            newUser->next = NULL;
+            saveUser(newUser);
+        }
+        else {
+            free(newUser);
+        }
+    }
+    fclose(file);
+}
+
+// Saving user data to file and hash table
+void saveUserData(User user) {
+    User* newUser = (User*)malloc(sizeof(User));
+    *newUser = user;
+    saveUser(newUser); //Add to hash table
+    saveHashTableToFile(); // save to file
+    clear_screen();
+}
+
+// Hash tablosunu dosyadan yükleme
+void printHashTable() {
+    if (hashTable == nullptr) {
+        printf("Hash table is not initialized.\n");
+        return;
+    }
+
+    printf("Hash Table Contents:\n");
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        User* current = hashTable[i];
+        if (current == NULL) {
+            continue; // Skip empty cells 
+        }
+        printf("Index %d:\n", i);
+        while (current != NULL) {
+            printf(" Name: %s %s, Phone: %s, Password: %s\n",
+                current->name, current->surname, current->phone, current->password);
+            current = current->next;
+        }
+    }
+    printf("End of Hash Table.\n");
+}
+
 // Function to build Huffman Tree
-void buildHuffmanTree(char* str, Attendee* attendee) {
+void buildHuffmanTree(char* str, AttendeE* attendee) {
     // Frequency array
     int freq[MAX_TREE_NODES] = { 0 };
     for (int i = 0; str[i] != '\0'; i++) {
@@ -245,22 +253,37 @@ void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanC
     }
 }
 
-
-
 bool validateLogin(const char* phone, const char* password) {
     unsigned int index = hash(phone);
     User* current = hashTable[index];
 
     while (current != NULL) {
         if (strcmp(current->phone, phone) == 0 && strcmp(current->password, password) == 0) {
-            return true; // Giriþ baþarýlý
+            return true; // login is successfull
         }
         current = current->next;
     }
-    return false; // Giriþ baþarýsýz
+    return false; // login is successfull
 }
 
-// Ana menü
+// Progressive Overflow Algorithm
+void progressiveOverflowAlgorithm() {
+    int array[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int overflowThreshold = 7; // Set the overflow threshold for demonstration
+    int currentSum = 0;
+
+    // Step through each element and calculate sum
+    for (int i = 0; i < 10; i++) {
+        currentSum += array[i];
+        if (currentSum > overflowThreshold) {
+            printf("Overflow detected at element %d with sum %d\n", i, currentSum);
+            // Implement corrective action (e.g., reset or alert)
+            currentSum = 0; // Reset for simplicity
+        }
+    }
+}
+
+// main menu
 bool mainMenu() {
     int choice;
     printf("\n-----------------------------------\n");
@@ -301,13 +324,14 @@ bool mainMenu() {
     return true;
 }
 
-// Kullanýcý doðrulama
+//  User verification
 bool authentication() {
     int login;
-    printf("----------- Authentication Menu -----------\n"); 
+    printf("----------- Authentication Menu -----------\n");
     printf("1. Register\n");
     printf("2. Login\n");
     printf("3. Guest Login\n");
+    printf("4. Progressive Overflow Test\n"); // Added option for the new function
     printf("Please enter your choice: ");
     scanf("%d", &login);
     switch (login) {
@@ -323,22 +347,26 @@ bool authentication() {
         else {
             clear_screen();
             printf("Invalid login. Returning to main menu.\n");
-             mainMenu();
+            mainMenu();
         }
         break;
     case 3:
-        guest(); 
+        guest();
+        mainMenu();
+        break;
+    case 4:
+        progressiveOverflowAlgorithm(); // Call the new algorithm
         mainMenu();
         break;
     default:
-        clear_screen(); 
+        clear_screen();
         printf("Invalid choice. Please try again.\n");
         mainMenu();
     }
     return true;
 }
 
-// Kullanýcý kaydý
+// User registration
 bool Register() {
     User newUser;
     printf("Enter your name: ");
@@ -354,12 +382,12 @@ bool Register() {
     clear_screen();
     printf("Registration successful! You can now log in.\n");
 
-    printHashTable(); // Her kayýttan sonra tabloyu yazdýr
-     mainMenu();
-     return true;
+    printHashTable(); //Print table after each record
+    mainMenu();
+    return true;
 }
 
-// Giriþ iþlemi
+// login
 bool logIn() {
     char phone[20];
     char password[20];
@@ -372,7 +400,7 @@ bool logIn() {
     return true;
 }
 
-// Misafir giriþi fonksiyonu
+// guest mode
 bool guest() {
     clear_screen();
     printf("Guest login successful!\n");
@@ -442,7 +470,7 @@ bool manageEvent() {
             else {
                 printf("No next event.\n");
             }
-            clear_screen();   
+            clear_screen();
             break;
         case 2:
             if (current->prev != NULL) {
@@ -451,7 +479,7 @@ bool manageEvent() {
             else {
                 printf("No previous event.\n");
             }
-            clear_screen(); 
+            clear_screen();
             break;
         case 3:
             printf("Enter new type: ");
@@ -498,13 +526,12 @@ bool eventDetails() {
         manageEvent();
         break;
     default:
-        clear_screen(); 
+        clear_screen();
         printf("Invalid choice. Please try again.\n");
         mainMenu();
     }
     return true;
 }
-
 
 #define MAX_ATTENDEES 100
 #define MAX_NAME_LENGTH 50
@@ -514,7 +541,7 @@ typedef struct {
     char nameAttendee[MAX_NAME_LENGTH];
     char surnameAttendee[MAX_NAME_LENGTH];
     char huffmanCode[MAX_NAME_LENGTH]; // Assuming Huffman code is stored as a string
-};
+} Attendee;
 
 Attendee attendees[MAX_ATTENDEES];
 int attendeeCount = 0;
@@ -525,28 +552,34 @@ void computeLPSArray(char* pattern, int M, int* lps);
 void compressAttendeeName(Attendee* attendee);
 bool registerAttendees();
 void printAttendees();
+bool attendee();
 
 // Knuth-Morris-Pratt (KMP) search function
 void kmpSearch(char* pattern) {
+    // Convert pattern to lowercase to make comparison case-insensitive
+    for (int i = 0; pattern[i]; i++) {
+        pattern[i] = tolower(pattern[i]); // Convert each character to lowercase
+    }
+
     int M = strlen(pattern);
     bool found = false;
 
     for (int i = 0; i < attendeeCount; i++) {
-        // Perform KMP search on the Huffman code of each attendee
+        // Convert attendee's Huffman code to lowercase before comparison
         char* huffmanCode = attendees[i].huffmanCode;
         int N = strlen(huffmanCode);
 
-        int* lps = new int[M];  // Dinamik bellek ayýrma
+        int* lps = (int*)malloc(M * sizeof(int));  // Dynamic memory allocation for LPS array
 
         computeLPSArray(pattern, M, lps);
 
         int j = 0;  // index for pattern
-        for (int i = 0; i < N; i++) {
-            while (j > 0 && pattern[j] != huffmanCode[i]) {
+        for (int k = 0; k < N; k++) {
+            while (j > 0 && pattern[j] != huffmanCode[k]) {
                 j = lps[j - 1];
             }
 
-            if (pattern[j] == huffmanCode[i]) {
+            if (pattern[j] == huffmanCode[k]) {
                 j++;
             }
 
@@ -556,6 +589,8 @@ void kmpSearch(char* pattern) {
                 break;
             }
         }
+
+        free(lps); // Free allocated memory for LPS array
     }
 
     if (!found) {
@@ -590,9 +625,12 @@ void computeLPSArray(char* pattern, int M, int* lps) {
 
 // Function to compress and store the Huffman code for each attendee's name
 void compressAttendeeName(Attendee* attendee) {
-    // For the sake of this example, we will just encode the name as a simple placeholder.
-    // In real scenarios, we should implement an actual Huffman compression function.
-    strcpy(attendee->huffmanCode, attendee->nameAttendee);  // Example: Huffman code is just the name for now
+    int len = strlen(attendee->nameAttendee);
+    // Directly store the name for simplicity (as a placeholder for actual Huffman coding)
+    for (int i = 0; i < len; i++) {
+        attendee->huffmanCode[i] = attendee->nameAttendee[i]; // Directly storing name characters
+    }
+    attendee->huffmanCode[len] = '\0'; // Null terminate the string
 }
 
 // Main function for registering attendees
@@ -615,7 +653,6 @@ bool registerAttendees() {
         attendeeCount++;
     }
     printf("%d attendees registered.\n", count);
-    mainMenu();
     return true;
 }
 
@@ -625,7 +662,6 @@ void printAttendees() {
     for (int i = 0; i < attendeeCount; i++) {
         printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].nameAttendee, attendees[i].surnameAttendee, attendees[i].huffmanCode);
     }
-    mainMenu();
 }
 
 // Main attendee menu function
@@ -635,15 +671,17 @@ bool attendee() {
     printf("1. Register Attendees\n");
     printf("2. Track Attendees\n");
     printf("3. Print Attendees\n");
+    printf("4. Manage Attendees List\n"); // New option for managing the list
     printf("Please enter your choice: ");
     scanf("%d", &choice);
 
     switch (choice) {
     case 1:
         registerAttendees();
+        mainMenu();
         break;
     case 2: {
-        char searchName[50];
+        char searchName[MAX_NAME_LENGTH];
         printf("Enter the name to search: ");
         scanf("%s", searchName);
         kmpSearch(searchName);  // Search in Huffman code
@@ -652,13 +690,56 @@ bool attendee() {
     }
     case 3:
         printAttendees();
+        mainMenu();
         break;
+    case 4: {
+        int subChoice;
+        printf("--------- Manage Attendees List ---------\n");
+        printf("1. Add Attendee\n");
+        printf("2. Remove Attendee\n");
+        printf("3. Display Activity History\n");
+        printf("4. Back to Main Menu\n");
+        printf("Please enter your choice: ");
+        scanf("%d", &subChoice);
+
+        switch (subChoice) {
+        case 1: {
+            char nameToAdd[MAX_NAME_LENGTH];
+            printf("Enter the name of the attendee to add: ");
+            scanf("%s", nameToAdd);
+            addToXORList(nameToAdd); // Add the attendee to XOR list
+            printf("Attendee added: %s\n", nameToAdd);
+            attendee();  // Go back to attendee menu
+            break;
+        }
+        case 2: {
+            char nameToRemove[MAX_NAME_LENGTH];
+            printf("Enter the name of the attendee to remove: ");
+            scanf("%s", nameToRemove);
+            removeFromXORList(nameToRemove); // Remove the attendee from XOR list
+            printf("Attendee removed: %s\n", nameToRemove);
+            attendee();  // Go back to attendee menu
+            break;
+        }
+        case 3:
+            displayXORList();  // Display the XOR list
+            attendee();  // Go back to attendee menu
+            break;
+        case 4:
+            mainMenu();  // Back to main menu
+            break;
+        default:
+            printf("Invalid choice. Please try again.\n");
+            attendee();
+        }
+        break;
+    }
     default:
         printf("Invalid choice. Please try again.\n");
+        mainMenu();
     }
     return true;
 }
-
 
 #define MAX_SIZE 100 
 #define STACK_SIZE 100
@@ -717,7 +798,32 @@ void addToXORList(const char* value) {
     xorHead = newNode; // Move head to the new node
 }
 
+// Function to remove a node from the XOR linked list
+void removeFromXORList(const char* value) {
+    XORNode* current = xorHead;
+    XORNode* prev = NULL;
+    XORNode* next;
 
+    while (current != NULL) {
+        if (strcmp(current->value, value) == 0) {
+            if (prev != NULL) {
+                prev->both = XOR(prev->both, current);
+            }
+            else {
+                xorHead = XOR(xorHead->both, NULL); // If it's the head node, adjust head
+            }
+
+            next = XOR(prev, current->both);
+            free(current);  // Free the current node
+            current = next; // Move to the next node
+        }
+        else {
+            next = XOR(prev, current->both);
+            prev = current;
+            current = next;
+        }
+    }
+}
 
 // Function to display the XOR linked list
 void displayXORList() {
@@ -915,7 +1021,7 @@ bool schedule() {
             dequeue();  // Dequeue activity
             break;
         case 7:
-            return mainMenu; // Return to Main Menu
+          mainMenu(); // Return to Main Menu
         default:
             printf("Invalid choice. Please try again.\n");
         }
@@ -957,32 +1063,159 @@ void heapSort(int arr[], int n) {
         heapify(arr, i, 0);
     }
 }
-
-
-
 #define MAX_FEEDBACKS 4
+#define MAX_KEYS 3  // Maximum number of keys for B+ tree
 
 int feedbackRatings[MAX_FEEDBACKS];
 int feedbackCount = 0;
 
+// Global variables required for SCC
+int discoveryTime[MAX_FEEDBACKS], lowLink[MAX_FEEDBACKS];
+bool inStack[MAX_FEEDBACKS];
+int stack[MAX_FEEDBACKS], stackTop = -1, timeCounter = 0;
 
-// Function to gather feedback and rating
-void gatherFeedbacks() {
-    clear_screen();
-    char feedback[256];  // Buffer for input
+// B+ 
+typedef struct BPlusLeafNode {
+    int keys[MAX_KEYS];
+    struct BPlusLeafNode* next;
+    int numKeys;
+} BPlusLeafNode;
+
+// B+ 
+typedef struct BPlusInternalNode {
+    int keys[MAX_KEYS];
+    void* children[MAX_KEYS + 1];
+    int numKeys;
+} BPlusInternalNode;
+
+// B+
+typedef struct BPlusTree {
+    void* root;  // Can be root, internal node or leaf
+} BPlusTree;
+
+// B+ tree
+BPlusTree* createBPlusTree() {
+    BPlusTree* tree = (BPlusTree*)malloc(sizeof(BPlusTree));
+    BPlusLeafNode* rootLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
+    rootLeaf->numKeys = 0;
+    rootLeaf->next = NULL;
+    tree->root = rootLeaf;
+    return tree;
+}
+
+// Add a key to a leaf node
+void insertIntoLeaf(BPlusLeafNode* leaf, int key) {
+    if (leaf->numKeys < MAX_KEYS) {
+        int i = leaf->numKeys - 1;
+        while (i >= 0 && leaf->keys[i] > key) {
+            leaf->keys[i + 1] = leaf->keys[i];
+            i--;
+        }
+        leaf->keys[i + 1] = key;
+        leaf->numKeys++;
+    }
+    else {
+        // Detach a leaf node
+        BPlusLeafNode* newLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
+        newLeaf->numKeys = 0;
+        newLeaf->next = leaf->next;
+        leaf->next = newLeaf;
+
+        int mid = MAX_KEYS / 2;
+        newLeaf->numKeys = MAX_KEYS - mid;
+        for (int i = 0; i < newLeaf->numKeys; i++) {
+            newLeaf->keys[i] = leaf->keys[mid + i];
+        }
+        leaf->numKeys = mid;
+
+        // Adding a new key
+        if (key > newLeaf->keys[0]) {
+            insertIntoLeaf(newLeaf, key);
+        }
+        else {
+            insertIntoLeaf(leaf, key);
+        }
+    }
+}
+
+// Add key to B + tree
+void insert(BPlusTree* tree, int key) {
+    BPlusLeafNode* root = (BPlusLeafNode*)tree->root;
+    if (root->numKeys < MAX_KEYS) {
+        insertIntoLeaf(root, key);
+    }
+    else {
+        //Creating new roots and separating leaves
+        BPlusInternalNode* newRoot = (BPlusInternalNode*)malloc(sizeof(BPlusInternalNode));
+        newRoot->numKeys = 1;
+        newRoot->keys[0] = root->keys[MAX_KEYS / 2];
+        newRoot->children[0] = root;
+        BPlusLeafNode* newLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
+        newLeaf->numKeys = 0;
+        newLeaf->next = NULL;
+        newRoot->children[1] = newLeaf;
+
+        tree->root = newRoot;
+        insertIntoLeaf(newLeaf, key);
+    }
+}
+
+// Helper functions for SCC
+void pushStackSCC(int node) {
+    stack[++stackTop] = node;
+    inStack[node] = true;
+}
+
+int popStackSCC() {
+    int node = stack[stackTop--];
+    inStack[node] = false;
+    return node;
+}
+
+// SCC (Tarjan's Algorithm)
+void SCC(int node, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
+    discoveryTime[node] = lowLink[node] = ++timeCounter;
+    pushStackSCC(node);
+
+    for (int i = 0; i < n; i++) {
+        if (adjMatrix[node][i]) {
+            if (discoveryTime[i] == -1) {
+                SCC(i, adjMatrix, n);
+                lowLink[node] = (lowLink[node] < lowLink[i]) ? lowLink[node] : lowLink[i];
+            }
+            else if (inStack[i]) {
+                lowLink[node] = (lowLink[node] < discoveryTime[i]) ? lowLink[node] : discoveryTime[i];
+            }
+        }
+    }
+
+    if (lowLink[node] == discoveryTime[node]) {
+        printf("SCC Found: ");
+        int w;
+        do {
+            w = popStackSCC();
+            printf("Feedback %d (Rating: %d) ", w + 1, feedbackRatings[w]);
+        } while (w != node);
+        printf("\n");
+    }
+}
+
+//Feedback collection function
+void gatherFeedbacks(BPlusTree* tree) {
+    char feedback[256];
     int rating;
 
     printf("Enter your feedback (max 255 characters): ");
-    fgets(feedback, sizeof(feedback), stdin);  // Get feedback input
-    feedback[strcspn(feedback, "\n")] = 0;  // Remove newline character
+    fgets(feedback, sizeof(feedback), stdin);
+    feedback[strcspn(feedback, "\n")] = 0;
 
-    // Get rating from user
     printf("Rate the application (1 to 5): ");
     scanf("%d", &rating);
-    getchar();  // Clear buffer
+    getchar();
 
     if (rating >= 1 && rating <= 5) {
-        feedbackRatings[feedbackCount++] = rating;  // Add rating to the array
+        feedbackRatings[feedbackCount++] = rating;
+        insert(tree, rating);
         printf("Feedback received: %s\n", feedback);
         printf("Rating received: %d\n", rating);
     }
@@ -991,23 +1224,20 @@ void gatherFeedbacks() {
     }
 
     printf("Press Enter to continue...\n");
-    getchar();  // Wait for user to press Enter
+    getchar();
 }
 
-// Function to display sorted ratings
+// Degree sorting function
 void displaySortedRatings() {
-    clear_screen();
-    printf("Sorted Ratings:\n");
-
     if (feedbackCount == 0) {
         printf("No ratings available.\n");
         return;
     }
 
     int sortedRatings[MAX_FEEDBACKS];
-    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int));  // Copy ratings array
+    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int)); // Copy degrees
 
-    // Sorting (you can use any sorting algorithm, here using a simple bubble sort as an example)
+    // Bubble sort
     for (int i = 0; i < feedbackCount - 1; i++) {
         for (int j = 0; j < feedbackCount - i - 1; j++) {
             if (sortedRatings[j] > sortedRatings[j + 1]) {
@@ -1018,119 +1248,149 @@ void displaySortedRatings() {
         }
     }
 
+    printf("Sorted Ratings:\n");
     for (int i = 0; i < feedbackCount; i++) {
         printf("%d ", sortedRatings[i]);
     }
-    printf("\n");
-    printf("Press Enter to return to Feedback Menu...\n");
-    getchar();  // Wait for user to press Enter
+    printf("\nPress Enter to return to Feedback Menu...\n");
+    getchar();
 }
 
-// Function to perform BFS (Breadth-First Search)
+// BFS function
 void BFS(int startNode, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    bool visited[MAX_FEEDBACKS] = { false };
     int queue[MAX_FEEDBACKS], front = 0, rear = 0;
+    int visited[MAX_FEEDBACKS] = { 0 };
 
-    // Mark the starting node as visited and enqueue it
-    visited[startNode] = true;
     queue[rear++] = startNode;
+    visited[startNode] = 1;
 
-    printf("BFS from Feedback %d:\n", startNode + 1);
+    printf("BFS Traversal starting from Feedback %d:\n", startNode + 1);
     while (front < rear) {
         int node = queue[front++];
         printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
 
-        // Enqueue all unvisited connected nodes
         for (int i = 0; i < n; i++) {
-            if (adjMatrix[node][i] == 1 && !visited[i]) {
-                visited[i] = true;
+            if (adjMatrix[node][i] && !visited[i]) {
                 queue[rear++] = i;
+                visited[i] = 1;
             }
         }
     }
 }
 
-// Function to perform DFS (Depth-First Search)
-void DFS(int node, bool visited[MAX_FEEDBACKS], int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    visited[node] = true;
+// DFS function
+void DFS(int node, int visited[MAX_FEEDBACKS], int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
+    visited[node] = 1;
     printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
 
-    // Visit all connected nodes
     for (int i = 0; i < n; i++) {
-        if (adjMatrix[node][i] == 1 && !visited[i]) {
-            printf("Visiting connected feedback %d...\n", i + 1);  // Debug message for DFS
+        if (adjMatrix[node][i] && !visited[i]) {
             DFS(i, visited, adjMatrix, n);
         }
     }
 }
 
-// Function to display the feedback submenu
+// Print leaf nodes and their contents in a B+ tree
+void printLeafNodes(BPlusTree* tree) {
+    BPlusLeafNode* current = (BPlusLeafNode*)tree->root;
+    while (current != NULL) {
+        printf("Leaf Node: ");
+        for (int i = 0; i < current->numKeys; i++) {
+            printf("%d ", current->keys[i]);
+        }
+        printf("\n");
+        current = current->next;
+    }
+}
+
+// Feedback
 bool feedback() {
+    BPlusTree* tree = createBPlusTree();
     int choice;
     while (1) {
-        clear_screen();  // Clear the console
-        printf("----------- Feedback Menu -----------\n");
+        printf("\n----------- Feedback Menu -----------\n");
         printf("1. Gather Feedback\n");
         printf("2. View Sorted Ratings\n");
-        printf("3. Perform BFS\n");
-        printf("4. Perform DFS\n");
-        printf("5. Return to Main Menu\n");
+        printf("3. Print B+ Tree\n");
+        printf("4. Perform BFS\n");
+        printf("5. Perform DFS\n");
+        printf("6. Find SCC (Tarjan Algorithm)\n");
+        printf("7. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
-        // Prompt the user to make a choice
         scanf("%d", &choice);
-        getchar();  // Clear the buffer
+        getchar();
 
         switch (choice) {
         case 1:
-            gatherFeedbacks();  // Gather feedback and rating
+            gatherFeedbacks(tree);
             break;
         case 2:
-            displaySortedRatings();  // Display sorted ratings
+            displaySortedRatings();
             break;
         case 3:
-        {
-            // Get the starting node for BFS
+            printf("Feedbacks stored in B+ Tree:\n");
+            printLeafNodes(tree);
+            break;
+        case 4: {
             int startNode;
-            printf("Enter the starting feedback number for BFS (1 to %d): ", feedbackCount);
-            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
-                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
-                while (getchar() != '\n'); // Clear the invalid input
+            printf("Enter starting feedback number for BFS (1 to %d): ", feedbackCount);
+            scanf("%d", &startNode);
+            getchar();
+
+            if (startNode < 1 || startNode > feedbackCount) {
+                printf("Invalid node.\n");
+                break;
             }
-            startNode--;  // Convert to 0-based index
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
+            startNode--;
 
-            // Example: Manually define the adjacency matrix
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
-            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+            adjMatrix[1][2] = adjMatrix[2][1] = 1;
 
-            BFS(startNode, adjMatrix, feedbackCount);  // Call BFS
-        }
-        break;
-        case 4:
-        {
-            // Get the starting node for DFS
+            BFS(startNode, adjMatrix, feedbackCount);
+        } break;
+        case 5: {
             int startNode;
-            printf("Enter the starting feedback number for DFS (1 to %d): ", feedbackCount);
-            while (scanf("%d", &startNode) != 1 || startNode < 1 || startNode > feedbackCount) {
-                printf("Invalid input. Please enter a number between 1 and %d: ", feedbackCount);
-                while (getchar() != '\n'); // Clear the invalid input
+            printf("Enter starting feedback number for DFS (1 to %d): ", feedbackCount);
+            scanf("%d", &startNode);
+            getchar();
+
+            if (startNode < 1 || startNode > feedbackCount) {
+                printf("Invalid node.\n");
+                break;
             }
-            startNode--;  // Convert to 0-based index
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Initialize adjacency matrix
+            startNode--;
 
-            // Example: Manually define the adjacency matrix
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Connect feedback 1 and feedback 2
-            adjMatrix[1][2] = adjMatrix[2][1] = 1;  // Connect feedback 2 and feedback 3
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+            adjMatrix[1][2] = adjMatrix[2][1] = 1;
 
-            bool visited[MAX_FEEDBACKS] = { false };
-            DFS(startNode, visited, adjMatrix, feedbackCount);  // Call DFS
-        }
-        break;
-        case 5:
-            return true;  // Return to main menu
+            int visited[MAX_FEEDBACKS] = { 0 };
+            DFS(startNode, visited, adjMatrix, feedbackCount);
+        } break;
+        case 6: {
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+            adjMatrix[1][2] = adjMatrix[2][1] = 1;
+
+            memset(discoveryTime, -1, sizeof(discoveryTime));
+            memset(lowLink, -1, sizeof(lowLink));
+            memset(inStack, false, sizeof(inStack));
+            stackTop = -1;
+            timeCounter = 0;
+
+            printf("Finding SCCs:\n");
+            for (int i = 0; i < feedbackCount; i++) {
+                if (discoveryTime[i] == -1) {
+                    SCC(i, adjMatrix, feedbackCount);
+                }
+            }
+        } break;
+        case 7:
+            mainMenu();
         default:
-            printf("Invalid choice. Please try again.\n");
+            printf("Invalid choice. Try again.\n");
         }
     }
     return true;

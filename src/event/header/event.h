@@ -8,7 +8,12 @@
 #define EVENT_H
 
 #include "../../utility/header/commonTypes.h" 
-
+typedef struct User;
+void addToXORList(const char* value);
+void removeFromXORList(const char* value);
+void saveUser(User* newUser);
+void saveUserData(User user);
+void displayXORList();
 void printHashTable();
 bool mainMenu();
 bool authentication();

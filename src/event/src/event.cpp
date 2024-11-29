@@ -13,7 +13,7 @@
 void clear_screen() {
 #if defined(_WIN32) || defined(_WIN64)
     system("cls");  // for Windows
-#elif defined(_linux_)
+#elif defined(linux)
     system("clear");  // for Linux and WSL
 #endif
 }
@@ -47,7 +47,7 @@ MinHeap* createMinHeap(unsigned capacity) {
     MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));  // We allocate memory for MinHeap
     minHeap->size = 0;  //  We set the initial size of the stack to 0
     minHeap->capacity = capacity;  // We adjust the capacity
-    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode*));  // Array for MinHeapNode pointers
+    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode));  // Array for MinHeapNode pointers
     return minHeap;
 }
 
@@ -75,7 +75,7 @@ MinHeapNode* extractMin(MinHeap* minHeap) {
     return temp;
 }
 
-// Function declarations
+// Function declarations  
 void kmpSearch(char* pattern);
 void computeLPSArray(char* pattern, int M, int* lps);
 void compressAttendeeName(AttendeE* attendee);
@@ -164,6 +164,25 @@ void loadHashTableFromFile() {
         }
     }
     fclose(file);
+}
+bool quadraticProbingInsert(User* newUser) {
+    unsigned int index = hash(newUser->phone);
+    unsigned int i = 0;
+    unsigned int originalIndex = index;
+
+    while (hashTable[index] != NULL && i < TABLE_SIZE) {
+        i++;
+        index = (originalIndex + i * i) % TABLE_SIZE;
+    }
+
+    if (i < TABLE_SIZE) {
+        hashTable[index] = newUser;
+        return true;
+    }
+    else {
+        printf("Hash table full.User not added.\n");
+        return false; // Kullanýcý eklenemedi
+    }
 }
 
 // Saving user data to file and hash table
@@ -324,22 +343,214 @@ bool mainMenu() {
     return true;
 }
 
-//  User verification
+void progressiveOverflow() {
+    printf("Executing Progressive Overflow algorithm...\n");
+    int array[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int overflowThreshold = 7; // Set the overflow threshold for demonstration
+    int currentSum = 0;
+
+    for (int i = 0; i < 10; i++) {
+        currentSum += array[i];
+        if (currentSum > overflowThreshold) {
+            printf("Overflow detected at index %d with sum %d\n", i, currentSum);
+            currentSum = 0; // Reset for simplicity
+        }
+    }
+}
+
+void linearProbing() {
+    printf("Executing Linear Probing algorithm...\n");
+    int hashTable[10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int index = keys[i] % 10;
+        while (hashTable[index] != 0) {
+            index = (index + 1) % 10;
+        }
+        hashTable[index] = keys[i];
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("Index %d: %d\n", i, hashTable[i]);
+    }
+}
+
+void quadraticProbing() {
+    printf("Executing Quadratic Probing algorithm...\n");
+    int hashTable[10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int index = keys[i] % 10;
+        int j = 0;
+        while (hashTable[(index + j * j) % 10] != 0) {
+            j++;
+        }
+        hashTable[(index + j * j) % 10] = keys[i];
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("Index %d: %d\n", i, hashTable[i]);
+    }
+}
+
+void doubleHashing() {
+    printf("Executing Double Hashing algorithm...\n");
+    int hashTable[10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int index = keys[i] % 10;
+        int step = 7 - (keys[i] % 7);
+        while (hashTable[index] != 0) {
+            index = (index + step) % 10;
+        }
+        hashTable[index] = keys[i];
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("Index %d: %d\n", i, hashTable[i]);
+    }
+}
+
+void useBuckets() {
+    printf("Executing Use of Buckets algorithm...\n");
+    int buckets[3][10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int bucketIndex = keys[i] % 3;
+        for (int j = 0; j < 10; j++) {
+            if (buckets[bucketIndex][j] == 0) {
+                buckets[bucketIndex][j] = keys[i];
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        printf("Bucket %d: ", i);
+        for (int j = 0; j < 10; j++) {
+            if (buckets[i][j] != 0) {
+                printf("%d ", buckets[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+void linearQuotient() {
+    printf("Executing Linear Quotient algorithm...\n");
+    int hashTable[10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int index = keys[i] % 10;
+        int increment = 1; // Linear increment
+        while (hashTable[index] != 0) {
+            index = (index + increment) % 10;
+        }
+        hashTable[index] = keys[i];
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("Index %d: %d\n", i, hashTable[i]);
+    }
+}
+
+void brentsMethod() {
+    printf("Executing Brent's Method algorithm...\n");
+    int hashTable[10] = { 0 };
+    int keys[] = { 23, 45, 12, 37, 29 };
+    int size = sizeof(keys) / sizeof(keys[0]);
+
+    for (int i = 0; i < size; i++) {
+        int index = keys[i] % 10;
+        int step = 1; // Initial step
+        while (hashTable[index] != 0) {
+            int newIndex = (index + step) % 10;
+            if (hashTable[newIndex] == 0) {
+                index = newIndex;
+                break;
+            }
+            step++;
+        }
+        hashTable[index] = keys[i];
+    }
+
+    for (int i = 0; i < 10; i++) {
+        printf("Index %d: %d\n", i, hashTable[i]);
+    }
+}
+
+void fileOperationsMenu() {
+    int choice;
+
+    printf("----------- File Operations Menu -----------\n");
+    printf("1. Progressive Overflow\n");
+    printf("2. Linear Probing\n");
+    printf("3. Quadratic Probing\n");
+    printf("4. Double Hashing\n");
+    printf("5. Use of Buckets\n");
+    printf("6. Linear Quotient\n");
+    printf("7. Brent's Method\n");
+    printf("8. Back to Authentication Menu\n");
+    printf("Please enter your choice: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+    case 1:
+        progressiveOverflow();
+        break;
+    case 2:
+        linearProbing();
+        break;
+    case 3:
+        quadraticProbing();
+        break;
+    case 4:
+        doubleHashing();
+        break;
+    case 5:
+        useBuckets();
+        break;
+    case 6:
+        linearQuotient();
+        break;
+    case 7:
+        brentsMethod();
+        break;
+    case 8:
+        return; // Go back to Authentication Menu
+    default:
+        printf("Invalid choice. Please try again.\n");
+    }
+
+    fileOperationsMenu(); // Recursive call to show the menu again
+}
+
+
 bool authentication() {
     int login;
     printf("----------- Authentication Menu -----------\n");
     printf("1. Register\n");
     printf("2. Login\n");
     printf("3. Guest Login\n");
-    printf("4. Progressive Overflow Test\n"); // Added option for the new function
+    printf("4. File Operations for Fast Search Operations\n");
     printf("Please enter your choice: ");
     scanf("%d", &login);
+
     switch (login) {
     case 1:
         Register();
         break;
     case 2:
-        if (logIn()) {
+        if (logIn()) { // validateLogin sonucuna göre karar ver
             clear_screen();
             printf("Login successful!\n");
             mainMenu();
@@ -355,8 +566,7 @@ bool authentication() {
         mainMenu();
         break;
     case 4:
-        progressiveOverflowAlgorithm(); // Call the new algorithm
-        mainMenu();
+        fileOperationsMenu();
         break;
     default:
         clear_screen();
@@ -387,7 +597,6 @@ bool Register() {
     return true;
 }
 
-// login
 bool logIn() {
     char phone[20];
     char password[20];
@@ -396,8 +605,7 @@ bool logIn() {
     printf("Enter your password: ");
     scanf("%s", password);
 
-    validateLogin(phone, password);
-    return true;
+    return validateLogin(phone, password); // Login doðruluðunu kontrol et
 }
 
 // guest mode
@@ -433,11 +641,30 @@ bool createEvent() {
         head = newEvent;
     }
     tail = newEvent;
+
+    // Write event data to the binary file "evet"
+    FILE* file = fopen("event.bin", "ab");
+    if (file == NULL) {
+        perror("Error opening file");
+        return false;
+    }
+
+    if (fwrite(newEvent, sizeof(Event), 1, file) != 1) {
+        perror("Error writing to file");
+        fclose(file);
+        return false;
+    }
+
+    fclose(file);
+
     clear_screen();
-    printf("Event created successfully!\n");
+    printf("Event created and saved successfully!\n");
     mainMenu();
     return true;
 }
+
+
+
 // Function to manage events
 bool manageEvent() {
     if (head == NULL) {
@@ -636,11 +863,18 @@ void compressAttendeeName(Attendee* attendee) {
 // Main function for registering attendees
 bool registerAttendees() {
     int count;
+    FILE* file = fopen("attendee.bin", "ab"); // Binary modunda aç (ekleme için)
+    if (file == NULL) {
+        perror("Error opening file");
+        return false;
+    }
+
     printf("How many people will attend? ");
     scanf("%d", &count);
 
     if (count <= 0 || count > MAX_ATTENDEES) {
         printf("Invalid number! Please enter a value between 1 and %d.\n", MAX_ATTENDEES);
+        fclose(file);
         return false;
     }
 
@@ -649,12 +883,23 @@ bool registerAttendees() {
         scanf("%s", attendees[attendeeCount].nameAttendee);
         printf("Enter the surname of attendee %d: ", i + 1);
         scanf("%s", attendees[attendeeCount].surnameAttendee);
-        compressAttendeeName(&attendees[attendeeCount]); // Compress name and store Huffman code
-        attendeeCount++;
+        compressAttendeeName(&attendees[attendeeCount]); // Huffman kodunu sýkýþtýr ve sakla
+
+        // Katýlýmcý bilgilerini binary dosyasýna yaz
+        if (fwrite(&attendees[attendeeCount], sizeof(Attendee), 1, file) != 1) {
+            perror("Error writing to file");
+            fclose(file);
+            return false;
+        }
+
+        attendeeCount++; // Kayýt sayýsýný artýr
     }
-    printf("%d attendees registered.\n", count);
+
+    printf("%d attendees registered and saved in binary format.\n", count);
+    fclose(file); // Dosyayý kapat
     return true;
 }
+
 
 // Function to print all registered attendees and their Huffman codes
 void printAttendees() {
@@ -1021,7 +1266,7 @@ bool schedule() {
             dequeue();  // Dequeue activity
             break;
         case 7:
-          mainMenu(); // Return to Main Menu
+            mainMenu(); // Return to Main Menu
         default:
             printf("Invalid choice. Please try again.\n");
         }

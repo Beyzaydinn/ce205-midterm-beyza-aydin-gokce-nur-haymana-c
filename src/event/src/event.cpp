@@ -44,10 +44,18 @@ typedef struct MinHeap {
 
 // Function to create a Min Heap
 MinHeap* createMinHeap(unsigned capacity) {
-    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));  // We allocate memory for MinHeap
-    minHeap->size = 0;  //  We set the initial size of the stack to 0
-    minHeap->capacity = capacity;  // We adjust the capacity
-    minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode));  // Array for MinHeapNode pointers
+    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+
+    // Only allocate memory for array if capacity is greater than 0
+    if (capacity > 0) {
+        minHeap->array = (MinHeapNode**)malloc(minHeap->capacity * sizeof(MinHeapNode));
+    }
+    else {
+        minHeap->array = nullptr;
+    }
+
     return minHeap;
 }
 
@@ -145,7 +153,6 @@ void saveHashTableToFile() {
     fclose(file);
 }
 
-// Loading hash table from file
 void loadHashTableFromFile() {
     FILE* file = fopen("users.bin", "rb");
     if (file == NULL) {
@@ -153,26 +160,34 @@ void loadHashTableFromFile() {
         return;
     }
 
-    while (!feof(file)) {
+    while (1) {
         User* newUser = (User*)malloc(sizeof(User));
-        if (fread(newUser, sizeof(User), 1, file) == 1) {
-            newUser->next = NULL;
-            saveUser(newUser);
+        // Eðer fread 1'den az veri okursa, dosya boþ olabilir veya okuma hatasý vardýr
+        if (fread(newUser, sizeof(User), 1, file) != 1) {
+            free(newUser); // Dosya bittiðinde veya okuma hatasýnda belleði temizle
+            break; // Dosya sonlandýðýnda döngüden çýk
         }
-        else {
-            free(newUser);
-        }
+        newUser->next = NULL;
+        saveUser(newUser);  // Kullanýcýyý hash tablosuna ekle
     }
-    fclose(file);
+
+    fclose(file); // Dosyayý kapat
 }
+
 bool quadraticProbingInsert(User* newUser) {
     unsigned int index = hash(newUser->phone);
     unsigned int i = 0;
     unsigned int originalIndex = index;
+    unsigned int startIndex = index;  
 
     while (hashTable[index] != NULL && i < TABLE_SIZE) {
         i++;
         index = (originalIndex + i * i) % TABLE_SIZE;
+
+        if (index == startIndex) {
+            printf("Hash table full. User not added.\n");
+            return false; 
+        }
     }
 
     if (i < TABLE_SIZE) {
@@ -180,10 +195,11 @@ bool quadraticProbingInsert(User* newUser) {
         return true;
     }
     else {
-        printf("Hash table full.User not added.\n");
-        return false; // Kullanýcý eklenemedi
+        printf("Hash table full. User not added.\n");
+        return false;
     }
 }
+
 
 // Saving user data to file and hash table
 void saveUserData(User user) {
@@ -273,17 +289,25 @@ void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanC
 }
 
 bool validateLogin(const char* phone, const char* password) {
-    unsigned int index = hash(phone);
-    User* current = hashTable[index];
+    if (phone == NULL || password == NULL) {
+        return false; // Giriþ parametrelerinin geçersizliði
+    }
 
+    unsigned int index = hash(phone);
+    if (index >= TABLE_SIZE || hashTable == NULL) {
+        return false; // Geçersiz index veya hashTable'ýn NULL olmasý
+    }
+
+    User* current = hashTable[index];
     while (current != NULL) {
         if (strcmp(current->phone, phone) == 0 && strcmp(current->password, password) == 0) {
-            return true; // login is successfull
+            return true; // Giriþ baþarýlý
         }
         current = current->next;
     }
-    return false; // login is successfull
+    return false; // Giriþ baþarýsýz
 }
+
 
 // Progressive Overflow Algorithm
 void progressiveOverflowAlgorithm() {
@@ -334,7 +358,7 @@ bool mainMenu() {
         feedback();
         break;
     case 6:
-        exit(0);
+        return false;
     default:
         printf("Invalid choice. Please try again.\n");
         return false;

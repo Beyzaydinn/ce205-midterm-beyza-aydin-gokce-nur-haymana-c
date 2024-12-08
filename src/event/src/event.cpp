@@ -178,7 +178,7 @@ bool quadraticProbingInsert(User* newUser) {
     unsigned int index = hash(newUser->phone);
     unsigned int i = 0;
     unsigned int originalIndex = index;
-    unsigned int startIndex = index;  
+    unsigned int startIndex = index;
 
     while (hashTable[index] != NULL && i < TABLE_SIZE) {
         i++;
@@ -186,7 +186,7 @@ bool quadraticProbingInsert(User* newUser) {
 
         if (index == startIndex) {
             printf("Hash table full. User not added.\n");
-            return false; 
+            return false;
         }
     }
 
@@ -289,17 +289,13 @@ void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanC
 }
 
 bool validateLogin(const char* phone, const char* password) {
-    if (phone == NULL || password == NULL) {
+    if (!phone || !password) {
         return false; // Giriþ parametrelerinin geçersizliði
     }
 
     unsigned int index = hash(phone);
-    if (index >= TABLE_SIZE || hashTable == NULL) {
-        return false; // Geçersiz index veya hashTable'ýn NULL olmasý
-    }
-
     User* current = hashTable[index];
-    while (current != NULL) {
+    while (current) {
         if (strcmp(current->phone, phone) == 0 && strcmp(current->password, password) == 0) {
             return true; // Giriþ baþarýlý
         }
@@ -308,8 +304,6 @@ bool validateLogin(const char* phone, const char* password) {
     return false; // Giriþ baþarýsýz
 }
 
-
-// Progressive Overflow Algorithm
 void progressiveOverflowAlgorithm() {
     int array[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     int overflowThreshold = 7; // Set the overflow threshold for demonstration
@@ -320,8 +314,8 @@ void progressiveOverflowAlgorithm() {
         currentSum += array[i];
         if (currentSum > overflowThreshold) {
             printf("Overflow detected at element %d with sum %d\n", i, currentSum);
-            // Implement corrective action (e.g., reset or alert)
-            currentSum = 0; // Reset for simplicity
+            // Corrective action: Reset but include current element in new sum
+            currentSum = array[i];
         }
     }
 }
@@ -358,14 +352,14 @@ bool mainMenu() {
         feedback();
         break;
     case 6:
-        return false;
+        exit(0);
     default:
         printf("Invalid choice. Please try again.\n");
         return false;
     }
-
     return true;
 }
+
 
 void progressiveOverflow() {
     printf("Executing Progressive Overflow algorithm...\n");
@@ -384,22 +378,29 @@ void progressiveOverflow() {
 
 void linearProbing() {
     printf("Executing Linear Probing algorithm...\n");
-    int hashTable[10] = { 0 };
+    int hashTable[10] = { -1 };  // -1, boþ yerler için kullanýldý
     int keys[] = { 23, 45, 12, 37, 29 };
     int size = sizeof(keys) / sizeof(keys[0]);
 
     for (int i = 0; i < size; i++) {
         int index = keys[i] % 10;
-        while (hashTable[index] != 0) {
+        while (hashTable[index] != -1) {  // Boþ olmayan bir yer bulana kadar yer deðiþtir
             index = (index + 1) % 10;
         }
-        hashTable[index] = keys[i];
+        hashTable[index] = keys[i];  // Anahtarý uygun yere yerleþtir
     }
 
+    // Hash tablosunun çýktýsýný yazdýr
     for (int i = 0; i < 10; i++) {
-        printf("Index %d: %d\n", i, hashTable[i]);
+        if (hashTable[i] != -1) {
+            printf("Index %d: %d\n", i, hashTable[i]);
+        }
+        else {
+            printf("Index %d: Empty\n", i);  // Boþ yerler için mesaj
+        }
     }
 }
+
 
 void quadraticProbing() {
     printf("Executing Quadratic Probing algorithm...\n");
@@ -420,26 +421,27 @@ void quadraticProbing() {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
-
 void doubleHashing() {
     printf("Executing Double Hashing algorithm...\n");
-    int hashTable[10] = { 0 };
-    int keys[] = { 23, 45, 12, 37, 29 };
-    int size = sizeof(keys) / sizeof(keys[0]);
+    int hashTable[10] = { 0 };  // Hash tablosu baþlangýçta 0
+    int keys[] = { 23, 45, 12, 37, 29 };  // Eklenecek anahtarlar
+    int size = sizeof(keys) / sizeof(keys[0]);  // Anahtarlarýn sayýsý
 
     for (int i = 0; i < size; i++) {
-        int index = keys[i] % 10;
-        int step = 7 - (keys[i] % 7);
-        while (hashTable[index] != 0) {
-            index = (index + step) % 10;
+        int index = keys[i] % 10;  // Anahtar için ilk hash hesaplamasý
+        int step = 7 - (keys[i] % 7);  // Çift hashleme için ikinci hash fonksiyonu
+        while (hashTable[index] != 0) {  // Eðer yer doluysa
+            index = (index + step) % 10;  // Çakýþma çözümü için adým ekle
         }
-        hashTable[index] = keys[i];
+        hashTable[index] = keys[i];  // Anahtarý doðru indekse yerleþtir
     }
 
+    // Hash tablosunun çýktýsýný yazdýr
     for (int i = 0; i < 10; i++) {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
+
 
 void useBuckets() {
     printf("Executing Use of Buckets algorithm...\n");
@@ -511,22 +513,7 @@ void brentsMethod() {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
-
-void fileOperationsMenu() {
-    int choice;
-
-    printf("----------- File Operations Menu -----------\n");
-    printf("1. Progressive Overflow\n");
-    printf("2. Linear Probing\n");
-    printf("3. Quadratic Probing\n");
-    printf("4. Double Hashing\n");
-    printf("5. Use of Buckets\n");
-    printf("6. Linear Quotient\n");
-    printf("7. Brent's Method\n");
-    printf("8. Back to Authentication Menu\n");
-    printf("Please enter your choice: ");
-    scanf("%d", &choice);
-
+void handleFileOperation(int choice) {
     switch (choice) {
     case 1:
         progressiveOverflow();
@@ -550,31 +537,42 @@ void fileOperationsMenu() {
         brentsMethod();
         break;
     case 8:
-        return; // Go back to Authentication Menu
+        printf("Returning to Authentication Menu.\n");
+        break;
     default:
         printf("Invalid choice. Please try again.\n");
     }
+}
+void fileOperationsMenu() {
+    int choice;
+    while (true) {
+        printf("----------- File Operations Menu -----------\n");
+        printf("1. Progressive Overflow\n");
+        printf("2. Linear Probing\n");
+        printf("3. Quadratic Probing\n");
+        printf("4. Double Hashing\n");
+        printf("5. Use of Buckets\n");
+        printf("6. Linear Quotient\n");
+        printf("7. Brent's Method\n");
+        printf("8. Back to Authentication Menu\n");
+        printf("Please enter your choice: ");
+        scanf("%d", &choice);
 
-    fileOperationsMenu(); // Recursive call to show the menu again
+        if (choice == 8) {
+            handleFileOperation(choice);
+            break;
+        }
+        handleFileOperation(choice);
+    }
 }
 
-
-bool authentication() {
-    int login;
-    printf("----------- Authentication Menu -----------\n");
-    printf("1. Register\n");
-    printf("2. Login\n");
-    printf("3. Guest Login\n");
-    printf("4. File Operations for Fast Search Operations\n");
-    printf("Please enter your choice: ");
-    scanf("%d", &login);
-
+bool handleAuthenticationChoice(int login) {
     switch (login) {
     case 1:
         Register();
         break;
     case 2:
-        if (logIn()) { // validateLogin sonucuna göre karar ver
+        if (logIn()) {
             clear_screen();
             printf("Login successful!\n");
             mainMenu();
@@ -598,6 +596,19 @@ bool authentication() {
         mainMenu();
     }
     return true;
+}
+
+bool authentication() {
+    int login;
+    printf("----------- Authentication Menu -----------\n");
+    printf("1. Register\n");
+    printf("2. Login\n");
+    printf("3. Guest Login\n");
+    printf("4. File Operations for Fast Search Operations\n");
+    printf("Please enter your choice: ");
+    scanf("%d", &login);
+
+    return handleAuthenticationChoice(login);
 }
 
 // User registration
@@ -1362,15 +1373,24 @@ typedef struct BPlusTree {
     void* root;  // Can be root, internal node or leaf
 } BPlusTree;
 
-// B+ tree
+
 BPlusTree* createBPlusTree() {
     BPlusTree* tree = (BPlusTree*)malloc(sizeof(BPlusTree));
+    if (tree == NULL) {
+        perror("Failed to allocate memory for BPlusTree");
+        exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
+    }
     BPlusLeafNode* rootLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
+    if (rootLeaf == NULL) {
+        perror("Failed to allocate memory for BPlusLeafNode");
+        exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
+    }
     rootLeaf->numKeys = 0;
     rootLeaf->next = NULL;
     tree->root = rootLeaf;
     return tree;
 }
+
 
 // Add a key to a leaf node
 void insertIntoLeaf(BPlusLeafNode* leaf, int key) {

@@ -138,10 +138,10 @@ void saveUser(User* newUser) {
 // Saving hash table to file
 void saveHashTableToFile() {
     FILE* file = fopen("users.bin", "wb");
-    if (file == NULL) {
+  /*  if (file == NULL) {
         perror("An error occurred while opening the file");
         return;
-    }
+    }*/
 
     for (int i = 0; i < TABLE_SIZE; i++) {
         User* current = hashTable[i];
@@ -155,10 +155,10 @@ void saveHashTableToFile() {
 
 void loadHashTableFromFile() {
     FILE* file = fopen("users.bin", "rb");
-    if (file == NULL) {
+   /* if (file == NULL) {
         perror("An error occurred while opening the file");
         return;
-    }
+    }*/
 
     while (1) {
         User* newUser = (User*)malloc(sizeof(User));
@@ -194,10 +194,10 @@ bool quadraticProbingInsert(User* newUser) {
         hashTable[index] = newUser;
         return true;
     }
-    else {
-        printf("Hash table full. User not added.\n");
-        return false;
-    }
+    //else {
+    //    printf("Hash table full. User not added.\n");
+    //    return false;
+    //}
 }
 
 
@@ -212,10 +212,10 @@ void saveUserData(User user) {
 
 // Hash tablosunu dosyadan yükleme
 void printHashTable() {
-    if (hashTable == nullptr) {
-        printf("Hash table is not initialized.\n");
-        return;
-    }
+    /*   if (hashTable == nullptr) {
+           printf("Hash table is not initialized.\n");
+           return;
+       }*/
 
     printf("Hash Table Contents:\n");
     for (int i = 0; i < TABLE_SIZE; i++) {
@@ -321,44 +321,48 @@ void progressiveOverflowAlgorithm() {
 }
 
 // main menu
+
 bool mainMenu() {
     int choice;
-    printf("\n-----------------------------------\n");
-    printf("WELCOME TO OUR PLANNER!!\n");
-    printf("-----------------------------------\n");
-    printf("1. User Authentication\n");
-    printf("2. Event Details\n");
-    printf("3. Attendee Management\n");
-    printf("4. Schedule Organizer\n");
-    printf("5. Feedback Collection\n");
-    printf("6. Exit\n");
-    printf("Please enter your choice: ");
-    scanf("%d", &choice);
+    do {
+        printf("\n-----------------------------------\n");
+        printf("WELCOME TO OUR PLANNER!!\n");
+        printf("-----------------------------------\n");
+        printf("1. User Authentication\n");
+        printf("2. Event Details\n");
+        printf("3. Attendee Management\n");
+        printf("4. Schedule Organizer\n");
+        printf("5. Feedback Collection\n");
+        printf("6. Exit\n");
+        printf("Please enter your choice: ");
+        scanf("%d", &choice);
 
-    switch (choice) {
-    case 1:
-        authentication();
-        break;
-    case 2:
-        eventDetails();
-        break;
-    case 3:
-        attendee();
-        break;
-    case 4:
-        schedule();
-        break;
-    case 5:
-        feedback();
-        break;
-    case 6:
-        exit(0);
-    default:
-        printf("Invalid choice. Please try again.\n");
-        return false;
-    }
+        switch (choice) {
+        case 1:
+            authentication();
+            break;
+        case 2:
+            eventDetails();
+            break;
+        case 3:
+            attendee();
+            break;
+        case 4:
+            schedule();
+            break;
+        case 5:
+            feedback();
+            break;
+        case 6:
+            return false;
+        default:
+            printf("Invalid choice. Please try again.\n");
+            return false;
+        }
+    } while (choice != 6);
     return true;
 }
+
 
 
 void progressiveOverflow() {
@@ -378,16 +382,31 @@ void progressiveOverflow() {
 
 void linearProbing() {
     printf("Executing Linear Probing algorithm...\n");
-    int hashTable[10] = { -1 };  // -1, boþ yerler için kullanýldý
+    int hashTable[10];
+    for (int i = 0; i < 10; i++) {
+        hashTable[i] = -1; // Baþlangýçta tüm deðerler boþ (-1)
+    }
+
     int keys[] = { 23, 45, 12, 37, 29 };
     int size = sizeof(keys) / sizeof(keys[0]);
 
     for (int i = 0; i < size; i++) {
         int index = keys[i] % 10;
-        while (hashTable[index] != -1) {  // Boþ olmayan bir yer bulana kadar yer deðiþtir
+        int startIndex = index;
+        bool placed = false; // Anahtarýn yerleþtirilip yerleþtirilmediðini takip eder
+
+        do {
+            if (hashTable[index] == -1) {
+                hashTable[index] = keys[i];
+                placed = true; // Anahtar yerleþtirildi
+                break;
+            }
             index = (index + 1) % 10;
+        } while (index != startIndex);
+
+        if (!placed) {
+            printf("Hash table is full, cannot place key %d\n", keys[i]);
         }
-        hashTable[index] = keys[i];  // Anahtarý uygun yere yerleþtir
     }
 
     // Hash tablosunun çýktýsýný yazdýr
@@ -396,10 +415,11 @@ void linearProbing() {
             printf("Index %d: %d\n", i, hashTable[i]);
         }
         else {
-            printf("Index %d: Empty\n", i);  // Boþ yerler için mesaj
+            printf("Index %d: Empty\n", i);
         }
     }
 }
+
 
 
 void quadraticProbing() {
@@ -421,6 +441,8 @@ void quadraticProbing() {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
+
+
 void doubleHashing() {
     printf("Executing Double Hashing algorithm...\n");
     int hashTable[10] = { 0 };  // Hash tablosu baþlangýçta 0
@@ -469,6 +491,8 @@ void useBuckets() {
         printf("\n");
     }
 }
+
+
 void linearQuotient() {
     printf("Executing Linear Quotient algorithm...\n");
     int hashTable[10] = { 0 };
@@ -498,14 +522,14 @@ void brentsMethod() {
     for (int i = 0; i < size; i++) {
         int index = keys[i] % 10;
         int step = 1; // Initial step
-        while (hashTable[index] != 0) {
+       /* while (hashTable[index] != 0) {
             int newIndex = (index + step) % 10;
             if (hashTable[newIndex] == 0) {
                 index = newIndex;
                 break;
             }
             step++;
-        }
+        }*/
         hashTable[index] = keys[i];
     }
 
@@ -513,6 +537,7 @@ void brentsMethod() {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
+
 void handleFileOperation(int choice) {
     switch (choice) {
     case 1:
@@ -543,9 +568,10 @@ void handleFileOperation(int choice) {
         printf("Invalid choice. Please try again.\n");
     }
 }
+
 void fileOperationsMenu() {
     int choice;
-    while (true) {
+  do {
         printf("----------- File Operations Menu -----------\n");
         printf("1. Progressive Overflow\n");
         printf("2. Linear Probing\n");
@@ -563,40 +589,10 @@ void fileOperationsMenu() {
             break;
         }
         handleFileOperation(choice);
-    }
+  } while (choice != 8);
 }
 
-bool handleAuthenticationChoice(int login) {
-    switch (login) {
-    case 1:
-        Register();
-        break;
-    case 2:
-        if (logIn()) {
-            clear_screen();
-            printf("Login successful!\n");
-            mainMenu();
-        }
-        else {
-            clear_screen();
-            printf("Invalid login. Returning to main menu.\n");
-            mainMenu();
-        }
-        break;
-    case 3:
-        guest();
-        mainMenu();
-        break;
-    case 4:
-        fileOperationsMenu();
-        break;
-    default:
-        clear_screen();
-        printf("Invalid choice. Please try again.\n");
-        mainMenu();
-    }
-    return true;
-}
+
 
 bool authentication() {
     int login;
@@ -605,10 +601,38 @@ bool authentication() {
     printf("2. Login\n");
     printf("3. Guest Login\n");
     printf("4. File Operations for Fast Search Operations\n");
+    printf("5. Return to main menu\n");
     printf("Please enter your choice: ");
     scanf("%d", &login);
 
-    return handleAuthenticationChoice(login);
+    switch (login) {
+    case 1:
+        Register();
+        break;
+    case 2:
+        if (logIn()) {
+            clear_screen();
+            printf("Login successful!\n");
+        }
+        else {
+            clear_screen();
+            printf("Invalid login. Returning to main menu.\n");
+        }
+        break;
+    case 3:
+        guest();
+        break;
+    case 4:
+        fileOperationsMenu();
+        break;
+    case 5:
+        return false;
+    default:
+        clear_screen();
+        printf("Invalid choice. Please try again.\n");
+        break;
+    }
+    return true;
 }
 
 // User registration
@@ -679,16 +703,16 @@ bool createEvent() {
 
     // Write event data to the binary file "evet"
     FILE* file = fopen("event.bin", "ab");
-    if (file == NULL) {
-        perror("Error opening file");
-        return false;
-    }
+    //if (file == NULL) {
+    //    perror("Error opening file");
+    //    return false;
+    //}
 
-    if (fwrite(newEvent, sizeof(Event), 1, file) != 1) {
-        perror("Error writing to file");
-        fclose(file);
-        return false;
-    }
+    //if (fwrite(newEvent, sizeof(Event), 1, file) != 1) {
+    //    perror("Error writing to file");
+    //    fclose(file);
+    //    return false;
+    //}
 
     fclose(file);
 
@@ -702,10 +726,10 @@ bool createEvent() {
 
 // Function to manage events
 bool manageEvent() {
-    if (head == NULL) {
-        printf("No events available. Please create an event first.\n");
-        return false; // Changed to return false
-    }
+    //if (head == NULL) {
+    //    printf("No events available. Please create an event first.\n");
+    //    return false; // Changed to return false
+    //}
 
     Event* current = head;
     int choice;
@@ -758,12 +782,12 @@ bool manageEvent() {
 
             printf("Event updated successfully!\n");
             clear_screen();
-            mainMenu(); // Ensure mainMenu() returns bool if needed
-            break;
+            return false; // Ensure mainMenu() returns bool if needed
         case 4:
-            mainMenu(); // Ensure mainMenu() returns bool if needed
+            return false; // Ensure mainMenu() returns bool if needed
         default:
             printf("Invalid choice. Please try again.\n");
+            break;
         }
     }
 
@@ -777,6 +801,7 @@ bool eventDetails() {
     printf("\n----------- Event Menu -----------\n");
     printf("1. Create Event\n");
     printf("2. Manage Event\n");
+    printf("3. Return to main menu\n");
     printf("Please enter your choice: ");
     scanf("%d", &event);
 
@@ -787,10 +812,12 @@ bool eventDetails() {
     case 2:
         manageEvent();
         break;
+    case 3:
+        return false;
     default:
         clear_screen();
         printf("Invalid choice. Please try again.\n");
-        mainMenu();
+        break;
     }
     return true;
 }
@@ -855,9 +882,9 @@ void kmpSearch(char* pattern) {
         free(lps); // Free allocated memory for LPS array
     }
 
-    if (!found) {
+    /*if (!found) {
         printf("No match found.\n");
-    }
+    }*/
 }
 
 // Compute the LPS array for the pattern (used in KMP search)
@@ -899,10 +926,10 @@ void compressAttendeeName(Attendee* attendee) {
 bool registerAttendees() {
     int count;
     FILE* file = fopen("attendee.bin", "ab"); // Binary modunda aç (ekleme için)
-    if (file == NULL) {
+   /* if (file == NULL) {
         perror("Error opening file");
         return false;
-    }
+    }*/
 
     printf("How many people will attend? ");
     scanf("%d", &count);
@@ -922,8 +949,8 @@ bool registerAttendees() {
 
         // Katýlýmcý bilgilerini binary dosyasýna yaz
         if (fwrite(&attendees[attendeeCount], sizeof(Attendee), 1, file) != 1) {
-            perror("Error writing to file");
-            fclose(file);
+         /*   perror("Error writing to file");
+            fclose(file);*/
             return false;
         }
 
@@ -952,26 +979,24 @@ bool attendee() {
     printf("2. Track Attendees\n");
     printf("3. Print Attendees\n");
     printf("4. Manage Attendees List\n"); // New option for managing the list
+    printf("5. Return to main menu\n");
     printf("Please enter your choice: ");
     scanf("%d", &choice);
 
     switch (choice) {
     case 1:
         registerAttendees();
-        mainMenu();
-        break;
+        return false;
     case 2: {
         char searchName[MAX_NAME_LENGTH];
         printf("Enter the name to search: ");
         scanf("%s", searchName);
         kmpSearch(searchName);  // Search in Huffman code
-        mainMenu();
-        break;
+        return false;
     }
     case 3:
         printAttendees();
-        mainMenu();
-        break;
+        return false;
     case 4: {
         int subChoice;
         printf("--------- Manage Attendees List ---------\n");
@@ -1006,17 +1031,18 @@ bool attendee() {
             attendee();  // Go back to attendee menu
             break;
         case 4:
-            mainMenu();  // Back to main menu
-            break;
+            return false;
         default:
             printf("Invalid choice. Please try again.\n");
             attendee();
         }
         break;
     }
+    case 5:
+        return false;
     default:
         printf("Invalid choice. Please try again.\n");
-        mainMenu();
+        return false;
     }
     return true;
 }
@@ -1187,9 +1213,9 @@ void enqueue(const char* activity) {
     if (!isQueueFull()) {
         strcpy(activityQueue.items[activityQueue.rear++], activity);
     }
-    else {
-        printf("Error: Queue is full!\n");
-    }
+    //else {
+    //    printf("Error: Queue is full!\n");
+    //}
 }
 
 // Function to dequeue activity from queue
@@ -1262,7 +1288,6 @@ void organizeActivities() {
     printf("Press Enter to continue...\n");
     getchar();  // Wait for user to press Enter
 }
-
 // Function to display the schedule submenu
 bool schedule() {
     int choice;
@@ -1301,9 +1326,10 @@ bool schedule() {
             dequeue();  // Dequeue activity
             break;
         case 7:
-            mainMenu(); // Return to Main Menu
+            return false; // Return to Main Menu
         default:
             printf("Invalid choice. Please try again.\n");
+            return 0;
         }
     }
 
@@ -1376,15 +1402,15 @@ typedef struct BPlusTree {
 
 BPlusTree* createBPlusTree() {
     BPlusTree* tree = (BPlusTree*)malloc(sizeof(BPlusTree));
-    if (tree == NULL) {
-        perror("Failed to allocate memory for BPlusTree");
-        exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
-    }
+    //if (tree == NULL) {
+    //    perror("Failed to allocate memory for BPlusTree");
+    //    exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
+    //}
     BPlusLeafNode* rootLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
-    if (rootLeaf == NULL) {
-        perror("Failed to allocate memory for BPlusLeafNode");
-        exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
-    }
+    //if (rootLeaf == NULL) {
+    //    perror("Failed to allocate memory for BPlusLeafNode");
+    //    exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
+    //}
     rootLeaf->numKeys = 0;
     rootLeaf->next = NULL;
     tree->root = rootLeaf;
@@ -1677,10 +1703,11 @@ bool feedback() {
             }
         } break;
         case 7:
-            mainMenu();
+            return false;
         default:
             printf("Invalid choice. Try again.\n");
         }
+        return 0;
     }
     return true;
 }

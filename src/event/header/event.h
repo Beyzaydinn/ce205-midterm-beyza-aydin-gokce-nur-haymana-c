@@ -15,7 +15,6 @@ void saveUser(User* newUser);
 void saveUserData(User user);
 void displayXORList();
 void printHashTable();
-bool mainMenu();
 bool authentication();
 bool Register();
 bool logIn();
@@ -37,5 +36,6 @@ void saveHashTableToFile();
 void loadHashTableFromFile();
 void clear_screen();
 void loadHashTableFromFile(void);
+void quadraticProbing();
 
 #endif // EVENT_H

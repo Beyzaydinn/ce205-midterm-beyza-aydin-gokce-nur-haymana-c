@@ -1,0 +1,26 @@
+Enter your phone number: Enter your password: [       OK ] EventAppTest.LogInTest (17 ms)
+[----------] 112 tests from EventAppTest (568 ms total)
+
+[----------] Global test environment tear-down
+[==========] 112 tests from 1 test suite ran. (568 ms total)
+[  PASSED  ] 95 tests.
+[  FAILED  ] 17 tests, listed below:
+[  FAILED  ] EventAppTest.OrganizeActivitiesTest
+[  FAILED  ] EventAppTest.InsertIntoBPlusTreeTest
+[  FAILED  ] EventAppTest.PlanTimelinesTest
+[  FAILED  ] EventAppTest.AuthenticationMenuTest
+[  FAILED  ] EventAppTest.AuthenticationMenuTest2
+[  FAILED  ] EventAppTest.BFSTest
+[  FAILED  ] EventAppTest.attendeeMenuTest
+[  FAILED  ] EventAppTest.RemoveFromXORListTest
+[  FAILED  ] EventAppTest.AddActivityToMatrixTest
+[  FAILED  ] EventAppTest.RegisterAttendeesTest
+[  FAILED  ] EventAppTest.DFSTest
+[  FAILED  ] EventAppTest.LinearProbingTest
+[  FAILED  ] EventAppTest.RegisterAttendeesCompleteTest
+[  FAILED  ] EventAppTest.ManageEventCase2GoToPreviousEvent
+[  FAILED  ] EventAppTest.ManageEventTest
+[  FAILED  ] EventAppTest.CreateEventTest
+[  FAILED  ] EventAppTest.RegisterTest
+
+17 FAILED TESTS

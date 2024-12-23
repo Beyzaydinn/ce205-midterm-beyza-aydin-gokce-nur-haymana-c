@@ -160,32 +160,32 @@ TEST_F(EventAppTest, InsertMinHeapTest) {
     free(node2);
 }
 
-//TEST_F(EventAppTest, ExtractMinTest) {  
-//    // MinHeap oluþturma
-//    MinHeap* minHeap = createMinHeap(10); // 10 boyutunda bir min heap oluþtur
-//    char data1 = 'A', data2 = 'B', data3 = 'C';
-//    unsigned freq1 = 5, freq2 = 3, freq3 = 8;
-//
-//    // MinHeap'e düðümler ekleme
-//    insertMinHeap(minHeap, createMinHeapNode(data1, freq1));
-//    insertMinHeap(minHeap, createMinHeapNode(data2, freq2));
-//    insertMinHeap(minHeap, createMinHeapNode(data3, freq3));
-//
-//    // extractMin fonksiyonunu test et
-//    MinHeapNode* minNode = extractMin(minHeap);
-//
-//    // Test durumlarý
-//    EXPECT_NE(nullptr, minNode);                     // Düðüm null olmamalý
-//    EXPECT_EQ(data2, minNode->data);                 // En küçük düðüm doðru olmalý
-//    EXPECT_EQ(freq2, minNode->freq);                 // En küçük frekans doðru olmalý
-//    EXPECT_EQ(2, minHeap->size);                     // Heap boyutu 2 olmalý
-//
-//    // En küçük düðümün bellek temizliði
-//    free(minNode);
-//    free(minHeap->array[0]); // Kalan en küçük düðümün bellek temizliði
-//    free(minHeap->array[1]); // Ýkinci düðümün bellek temizliði
-//    free(minHeap);           // Heap bellek temizliði
-//}
+TEST_F(EventAppTest, ExtractMinTest) {  
+    // MinHeap oluþturma
+    MinHeap* minHeap = createMinHeap(10); // 10 boyutunda bir min heap oluþtur
+    char data1 = 'A', data2 = 'B', data3 = 'C';
+    unsigned freq1 = 5, freq2 = 3, freq3 = 8;
+
+    // MinHeap'e düðümler ekleme
+    insertMinHeap(minHeap, createMinHeapNode(data1, freq1));
+    insertMinHeap(minHeap, createMinHeapNode(data2, freq2));
+    insertMinHeap(minHeap, createMinHeapNode(data3, freq3));
+
+    // extractMin fonksiyonunu test et
+    MinHeapNode* minNode = extractMin(minHeap);
+
+    // Test durumlarý
+    EXPECT_NE(nullptr, minNode);                     // Düðüm null olmamalý
+    EXPECT_EQ(data2, minNode->data);                 // En küçük düðüm doðru olmalý
+    EXPECT_EQ(freq2, minNode->freq);                 // En küçük frekans doðru olmalý
+    EXPECT_EQ(2, minHeap->size);                     // Heap boyutu 2 olmalý
+
+    // En küçük düðümün bellek temizliði
+    free(minNode);
+    free(minHeap->array[0]); // Kalan en küçük düðümün bellek temizliði
+    free(minHeap->array[1]); // Ýkinci düðümün bellek temizliði
+    free(minHeap);           // Heap bellek temizliði
+}
 
 TEST_F(EventAppTest, UserStructureTest) {
     // User yapýsýný oluþtur

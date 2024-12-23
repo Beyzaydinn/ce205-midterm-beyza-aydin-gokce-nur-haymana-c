@@ -10,6 +10,15 @@
 #include <ctype.h>
 
 
+/**
+ * @brief Clears the console screen.
+ *
+ * This function clears the console screen using system-specific commands.
+ * It supports both Windows and Linux platforms.
+ *
+ * @note On Windows, it uses the "cls" command.
+ *       On Linux and WSL, it uses the "clear" command.
+ */
 void clear_screen() {
 #if defined(_WIN32) || defined(_WIN64)
     system("cls");  // for Windows
@@ -18,31 +27,71 @@ void clear_screen() {
 #endif
 }
 
+
+/**
+ * @brief Defines the size of a hash table.
+ *
+ * This macro specifies the number of elements that the hash table can hold.
+ */
 #define TABLE_SIZE 100
+
+ /**
+  * @brief Defines the maximum number of nodes in a tree.
+  *
+  * This macro sets the upper limit for the number of nodes that can be managed in a tree structure.
+  */
 #define MAX_TREE_NODES 256
 
-// Define the structure for an Attendee
+  /**
+   * @brief Structure to represent an attendee.
+   *
+   * This structure stores details of an attendee, including their first name,
+   * last name, and associated Huffman code.
+   */
 typedef struct AttendeE {
-    char nameAttendee[50];
-    char surnameAttendee[50];
-    char huffmanCode[256]; // Store the Huffman code
+    char nameAttendee[50];      /**< First name of the attendee. */
+    char surnameAttendee[50];   /**< Last name of the attendee. */
+    char huffmanCode[256];      /**< Huffman code associated with the attendee. */
 } AttendeE;
 
-// Define a structure for the Huffman tree nodes
+/**
+ * @brief Structure for a node in the Huffman tree.
+ *
+ * This structure represents a node in the Huffman tree, including its character data,
+ * frequency, and pointers to left and right child nodes.
+ */
 typedef struct MinHeapNode {
-    char data;
-    unsigned freq;
-    struct MinHeapNode* left, * right;
+    char data;                   /**< Character stored in the node. */
+    unsigned freq;               /**< Frequency of the character. */
+    struct MinHeapNode* left;    /**< Pointer to the left child node. */
+    struct MinHeapNode* right;   /**< Pointer to the right child node. */
 } MinHeapNode;
 
-// Define a structure for Min Heap
+/**
+ * @brief Structure for a Min Heap.
+ *
+ * This structure represents a Min Heap, which is used in the Huffman coding process.
+ * It contains the current size, maximum capacity, and an array of pointers to MinHeapNode elements.
+ */
 typedef struct MinHeap {
-    unsigned size;
-    unsigned capacity;
-    MinHeapNode** array;  // Pointer to an array of MinHeapNode pointers
+    unsigned size;               /**< Current size of the Min Heap. */
+    unsigned capacity;           /**< Maximum capacity of the Min Heap. */
+    MinHeapNode** array;         /**< Array of pointers to MinHeapNode elements. */
 } MinHeap;
 
-// Function to create a Min Heap
+/**
+ * @brief Creates a Min Heap with the specified capacity.
+ *
+ * This function dynamically allocates memory for a Min Heap structure,
+ * initializes its size to 0, and allocates memory for the array of
+ * MinHeapNode pointers based on the specified capacity.
+ *
+ * @param capacity The maximum capacity of the Min Heap.
+ * @return A pointer to the newly created MinHeap structure.
+ *
+ * @note If the specified capacity is 0 or less, the array pointer is set to nullptr.
+ *       Ensure to free the allocated memory after usage.
+ */
 MinHeap* createMinHeap(unsigned capacity) {
     MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
     minHeap->size = 0;
@@ -59,8 +108,19 @@ MinHeap* createMinHeap(unsigned capacity) {
     return minHeap;
 }
 
-
-// Function to create a Min Heap Node
+/**
+ * @brief Creates a new Min Heap Node.
+ *
+ * This function dynamically allocates memory for a Min Heap Node,
+ * initializes it with the provided character data and frequency,
+ * and sets its child pointers to NULL.
+ *
+ * @param data The character to be stored in the node.
+ * @param freq The frequency associated with the character.
+ * @return A pointer to the newly created MinHeapNode.
+ *
+ * @note Ensure to free the allocated memory for the node after usage.
+ */
 MinHeapNode* createMinHeapNode(char data, unsigned freq) {
     MinHeapNode* newNode = (MinHeapNode*)malloc(sizeof(MinHeapNode));
     newNode->data = data;
@@ -69,13 +129,35 @@ MinHeapNode* createMinHeapNode(char data, unsigned freq) {
     return newNode;
 }
 
-// Function to insert a node into the Min Heap
+/**
+ * @brief Inserts a node into the Min Heap.
+ *
+ * This function adds a given Min Heap Node to the Min Heap's array
+ * and increments the size of the Min Heap. It assumes that the Min Heap
+ * has sufficient capacity to accommodate the new node.
+ *
+ * @param minHeap Pointer to the MinHeap where the node will be inserted.
+ * @param minHeapNode Pointer to the MinHeapNode to be inserted.
+ *
+ * @note Ensure that the Min Heap has sufficient capacity before calling this function.
+ */
 void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode) {
     minHeap->array[minHeap->size] = minHeapNode;
     minHeap->size++;
 }
 
-// Function to extract the minimum node from the Min Heap
+/**
+ * @brief Extracts the minimum node from the Min Heap.
+ *
+ * This function removes the node with the smallest frequency from the Min Heap.
+ * The last node in the heap is moved to the root position, and the size of the Min Heap is decremented.
+ *
+ * @param minHeap Pointer to the MinHeap from which the minimum node will be extracted.
+ * @return A pointer to the extracted MinHeapNode containing the smallest frequency.
+ *
+ * @note This function assumes that the Min Heap is not empty. It does not perform
+ *       heapify operations, so maintaining heap properties is the caller's responsibility.
+ */
 MinHeapNode* extractMin(MinHeap* minHeap) {
     MinHeapNode* temp = minHeap->array[0];
     minHeap->array[0] = minHeap->array[minHeap->size - 1];
@@ -83,43 +165,173 @@ MinHeapNode* extractMin(MinHeap* minHeap) {
     return temp;
 }
 
-// Function declarations  
+/**
+ * @brief Searches for occurrences of a pattern in a given text using the KMP algorithm.
+ *
+ * This function performs a Knuth-Morris-Pratt (KMP) search for a given pattern in a predefined text.
+ * It uses the LPS (Longest Prefix Suffix) array for efficient searching.
+ *
+ * @param pattern The pattern to search for.
+ */
 void kmpSearch(char* pattern);
-void computeLPSArray(char* pattern, int M, int* lps);
-void compressAttendeeName(AttendeE* attendee);
-void buildHuffmanTree(char* str, AttendeE* attendee);
-MinHeap* createMinHeap(unsigned capacity);
-MinHeapNode* createMinHeapNode(char data, unsigned freq);
-void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
-MinHeapNode* extractMin(MinHeap* minHeap);
-void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
-void printAttendees(); // New function declaration
-void progressiveOverflowAlgorithm(); // New function declaration
 
+/**
+ * @brief Computes the Longest Prefix Suffix (LPS) array for a given pattern.
+ *
+ * This function prepares the LPS array, which is used in the KMP search algorithm to avoid unnecessary comparisons.
+ *
+ * @param pattern The pattern for which to compute the LPS array.
+ * @param M Length of the pattern.
+ * @param lps Pointer to the array where the LPS values will be stored.
+ */
+void computeLPSArray(char* pattern, int M, int* lps);
+
+/**
+ * @brief Compresses the name of an attendee using Huffman encoding.
+ *
+ * This function generates a Huffman code for the name of the attendee and stores it in the attendee's structure.
+ *
+ * @param attendee Pointer to the AttendeE structure containing the attendee's name.
+ */
+void compressAttendeeName(AttendeE* attendee);
+
+/**
+ * @brief Builds a Huffman tree from a string and stores the resulting codes in an attendee structure.
+ *
+ * This function constructs a Huffman tree for the given string and associates the generated codes with an attendee.
+ *
+ * @param str The string for which the Huffman tree is built.
+ * @param attendee Pointer to the AttendeE structure to store the Huffman codes.
+ */
+void buildHuffmanTree(char* str, AttendeE* attendee);
+
+/**
+ * @brief Creates a Min Heap with the specified capacity.
+ *
+ * @param capacity The maximum capacity of the Min Heap.
+ * @return A pointer to the newly created MinHeap structure.
+ */
+MinHeap* createMinHeap(unsigned capacity);
+
+/**
+ * @brief Creates a new Min Heap Node.
+ *
+ * @param data The character to be stored in the node.
+ * @param freq The frequency associated with the character.
+ * @return A pointer to the newly created MinHeapNode.
+ */
+MinHeapNode* createMinHeapNode(char data, unsigned freq);
+
+/**
+ * @brief Inserts a node into the Min Heap.
+ *
+ * @param minHeap Pointer to the MinHeap where the node will be inserted.
+ * @param minHeapNode Pointer to the MinHeapNode to be inserted.
+ */
+void insertMinHeap(MinHeap* minHeap, MinHeapNode* minHeapNode);
+
+/**
+ * @brief Extracts the minimum node from the Min Heap.
+ *
+ * @param minHeap Pointer to the MinHeap from which the minimum node will be extracted.
+ * @return A pointer to the extracted MinHeapNode containing the smallest frequency.
+ */
+MinHeapNode* extractMin(MinHeap* minHeap);
+
+/**
+ * @brief Generates Huffman codes from a Huffman tree.
+ *
+ * This function traverses the Huffman tree to generate codes for characters and
+ * stores the generated codes in the provided Huffman code string.
+ *
+ * @param root Pointer to the root node of the Huffman tree.
+ * @param code Temporary array to store the current code during traversal.
+ * @param top Index for the current position in the code array.
+ * @param huffmanCode String to store the final generated Huffman code.
+ */
+void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode);
+
+/**
+ * @brief Prints the list of attendees and their Huffman codes.
+ *
+ * This function outputs the details of all attendees, including their names and Huffman codes.
+ */
+void printAttendees();
+
+/**
+ * @brief Executes the Progressive Overflow Algorithm (POA).
+ *
+ * This function implements a Progressive Overflow Algorithm (POA) for an unspecified task.
+ */
+void progressiveOverflowAlgorithm();
+
+
+/**
+ * @brief Structure to represent a user.
+ *
+ * This structure contains the user's details, including their name, surname,
+ * phone number, password, and a pointer to the next user for resolving collisions
+ * in the hash table using a linked list.
+ */
 typedef struct User {
-    char name[50];
-    char surname[50];
-    char phone[20];
-    char password[20];
-    struct User* next;  // We use linked list to resolve collisions
+    char name[50];               /**< User's first name. */
+    char surname[50];            /**< User's last name. */
+    char phone[20];              /**< User's phone number. */
+    char password[20];           /**< User's password. */
+    struct User* next;           /**< Pointer to the next user in case of collisions. */
 } User;
 
+/**
+ * @brief Hash table for storing user records.
+ *
+ * This array of pointers is used to implement a hash table with a size defined by TABLE_SIZE.
+ * Each index in the array points to a linked list of User structures to handle collisions.
+ */
 User* hashTable[TABLE_SIZE];
 
-// Structure definitions
+/**
+ * @brief Structure to represent an event.
+ *
+ * This structure contains details about an event, including its type,
+ * date, color, and concept. It also contains pointers to the previous
+ * and next events, allowing for a doubly linked list implementation.
+ */
 typedef struct Event {
-    char type[50];
-    char date[20];
-    char color[20];
-    char concept[50];
-    struct Event* prev;
-    struct Event* next;
+    char type[50];              /**< Type of the event. */
+    char date[20];              /**< Date of the event. */
+    char color[20];             /**< Color associated with the event. */
+    char concept[50];           /**< Concept or theme of the event. */
+    struct Event* prev;         /**< Pointer to the previous event in the list. */
+    struct Event* next;         /**< Pointer to the next event in the list. */
 } Event;
 
+/**
+ * @brief Head pointer of the doubly linked list of events.
+ *
+ * This pointer points to the first event in the list, allowing for traversal
+ * and management of the events.
+ */
 Event* head = NULL;
+
+/**
+ * @brief Tail pointer of the doubly linked list of events.
+ *
+ * This pointer points to the last event in the list, facilitating operations
+ * that require access to the end of the list.
+ */
 Event* tail = NULL;
 
-// Hash function
+/**
+ * @brief Computes a hash value for a given phone number.
+ *
+ * This function calculates a hash value for the input phone number
+ * using a simple hash function based on the polynomial accumulation method.
+ * The result is then constrained to fit within the defined hash table size.
+ *
+ * @param phone The phone number to be hashed.
+ * @return An unsigned integer representing the hash value of the phone number,
+ *         which is in the range of [0, TABLE_SIZE - 1].
+ */
 unsigned int hash(const char* phone) {
     unsigned int hash = 0;
     for (int i = 0; i < strlen(phone); i++) {
@@ -128,20 +340,39 @@ unsigned int hash(const char* phone) {
     return hash;
 }
 
-// Saving user to hash table
+/**
+ * @brief Saves a new user to the hash table.
+ *
+ * This function inserts a new user into the hash table by calculating the
+ * appropriate index based on the user's phone number. It uses a linked list
+ * to handle collisions by chaining users at the same index.
+ *
+ * @param newUser Pointer to the User structure that needs to be saved in the hash table.
+ */
 void saveUser(User* newUser) {
     unsigned int index = hash(newUser->phone);
     newUser->next = hashTable[index];
     hashTable[index] = newUser;
 }
 
-// Saving hash table to file
+/**
+ * @brief Saves the hash table of users to a binary file.
+ *
+ * This function iterates through each index of the hash table and writes
+ * each user record to a binary file named "users.bin". It handles collisions
+ * by traversing the linked list of users at each index.
+ *
+ * Note: Error checking for file opening is commented out. Uncomment the error
+ * handling code if needed.
+ */
 void saveHashTableToFile() {
     FILE* file = fopen("users.bin", "wb");
-  /*  if (file == NULL) {
+    /*
+    if (file == NULL) {
         perror("An error occurred while opening the file");
         return;
-    }*/
+    }
+    */
 
     for (int i = 0; i < TABLE_SIZE; i++) {
         User* current = hashTable[i];
@@ -153,27 +384,53 @@ void saveHashTableToFile() {
     fclose(file);
 }
 
+
+/**
+ * @brief Loads user records from a binary file into the hash table.
+ *
+ * This function reads user records from a binary file named "users.bin"
+ * and inserts each user into the hash table. It allocates memory for a new
+ * User structure for each record read. If less than one record is read,
+ * it indicates the end of the file or a read error, and the function will
+ * clean up the allocated memory before exiting the loop.
+ *
+ * Note: Error checking for file opening is commented out. Uncomment the error
+ * handling code if needed.
+ */
 void loadHashTableFromFile() {
     FILE* file = fopen("users.bin", "rb");
-   /* if (file == NULL) {
+    /*
+    if (file == NULL) {
         perror("An error occurred while opening the file");
         return;
-    }*/
+    }
+    */
 
     while (1) {
         User* newUser = (User*)malloc(sizeof(User));
-        // Eðer fread 1'den az veri okursa, dosya boþ olabilir veya okuma hatasý vardýr
+        // If fread reads less than one, the file may be empty or an error occurred
         if (fread(newUser, sizeof(User), 1, file) != 1) {
-            free(newUser); // Dosya bittiðinde veya okuma hatasýnda belleði temizle
-            break; // Dosya sonlandýðýnda döngüden çýk
+            free(newUser); // Clean up memory if end of file or read error occurs
+            break; // Exit the loop when the end of the file is reached
         }
         newUser->next = NULL;
-        saveUser(newUser);  // Kullanýcýyý hash tablosuna ekle
+        saveUser(newUser);  // Add the user to the hash table
     }
 
-    fclose(file); // Dosyayý kapat
+    fclose(file); // Close the file
 }
 
+/**
+ * @brief Inserts a new user into the hash table using quadratic probing.
+ *
+ * This function attempts to insert a new user into the hash table at the
+ * index calculated from the user's phone number. If the calculated index
+ * is occupied, it uses quadratic probing to find the next available slot.
+ * If the table is full, it notifies the user and returns false.
+ *
+ * @param newUser Pointer to the User structure to be inserted into the hash table.
+ * @return True if the user was successfully added, false if the hash table is full.
+ */
 bool quadraticProbingInsert(User* newUser) {
     unsigned int index = hash(newUser->phone);
     unsigned int i = 0;
@@ -201,21 +458,37 @@ bool quadraticProbingInsert(User* newUser) {
 }
 
 
-// Saving user data to file and hash table
+/**
+ * @brief Saves user data to the hash table and a file.
+ *
+ * This function takes a User structure as input, allocates memory for a new
+ * User, copies the provided user data into it, and then inserts the new user
+ * into the hash table. After adding the user to the hash table, it saves the
+ * entire hash table to a binary file. The screen is cleared after the operation.
+ *
+ * @param user The User structure containing the data to be saved.
+ */
 void saveUserData(User user) {
     User* newUser = (User*)malloc(sizeof(User));
     *newUser = user;
-    saveUser(newUser); //Add to hash table
-    saveHashTableToFile(); // save to file
+    saveUser(newUser); // Add to hash table
+    saveHashTableToFile(); // Save to file
     clear_screen();
 }
-
-// Hash tablosunu dosyadan yükleme
+/**
+ * @brief Prints the contents of the hash table.
+ *
+ * This function iterates through each index of the hash table and prints the
+ * user data stored at that index. If an index is empty, it skips to the next
+ * index. For each user, it displays their name, surname, phone number, and
+ * password. The function ends by indicating the completion of the hash table
+ * output.
+ */
 void printHashTable() {
     /*   if (hashTable == nullptr) {
            printf("Hash table is not initialized.\n");
            return;
-       }*/
+       } */
 
     printf("Hash Table Contents:\n");
     for (int i = 0; i < TABLE_SIZE; i++) {
@@ -233,7 +506,18 @@ void printHashTable() {
     printf("End of Hash Table.\n");
 }
 
-// Function to build Huffman Tree
+/**
+ * @brief Builds a Huffman tree based on the frequency of characters in a string.
+ *
+ * This function takes a string and an attendee structure as input, calculates
+ * the frequency of each character in the string, and constructs a Huffman tree
+ * using a min-heap. It then generates Huffman codes for each character and
+ * stores the generated code in the attendee structure.
+ *
+ * @param str The input string for which the Huffman tree will be built.
+ * @param attendee A pointer to an AttendeE structure where the Huffman code
+ *                 will be stored.
+ */
 void buildHuffmanTree(char* str, AttendeE* attendee) {
     // Frequency array
     int freq[MAX_TREE_NODES] = { 0 };
@@ -269,7 +553,18 @@ void buildHuffmanTree(char* str, AttendeE* attendee) {
     generateHuffmanCodes(root, huffmanCode, 0, attendee->huffmanCode);
 }
 
-// Function to generate Huffman Codes
+/**
+ * @brief Generates Huffman codes for characters in a Huffman tree.
+ *
+ * This function traverses the Huffman tree recursively and generates
+ * the corresponding Huffman codes for each character. The generated codes
+ * are stored in the provided huffmanCode buffer.
+ *
+ * @param root A pointer to the root of the Huffman tree.
+ * @param code A buffer to store the current Huffman code during recursion.
+ * @param top The current position in the code buffer.
+ * @param huffmanCode A buffer to store the final Huffman codes for each character.
+ */
 void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanCode) {
     if (root->left) {
         code[top] = '0';
@@ -288,22 +583,44 @@ void generateHuffmanCodes(MinHeapNode* root, char* code, int top, char* huffmanC
     }
 }
 
+/**
+ * @brief Validates user login credentials.
+ *
+ * This function checks if the provided phone number and password
+ * match any entry in the hash table. If a match is found, it indicates
+ * a successful login; otherwise, it indicates a failure.
+ *
+ * @param phone The phone number of the user attempting to log in.
+ * @param password The password of the user attempting to log in.
+ * @return true if the login credentials are valid; false otherwise.
+ */
 bool validateLogin(const char* phone, const char* password) {
     if (!phone || !password) {
-        return false; // Giriþ parametrelerinin geçersizliði
+        return false; // Invalid login parameters
     }
 
     unsigned int index = hash(phone);
     User* current = hashTable[index];
     while (current) {
         if (strcmp(current->phone, phone) == 0 && strcmp(current->password, password) == 0) {
-            return true; // Giriþ baþarýlý
+            return true; // Successful login
         }
         current = current->next;
     }
-    return false; // Giriþ baþarýsýz
+    return false; // Unsuccessful login
 }
 
+/**
+ * @brief Demonstrates a progressive overflow algorithm.
+ *
+ * This function iterates through an array of integers, calculating a running sum.
+ * If the current sum exceeds a predefined overflow threshold, it prints a message
+ * indicating the overflow and resets the current sum while retaining the last
+ * processed element in the sum.
+ *
+ * The algorithm helps in understanding how to handle overflows
+ * in data processing where cumulative values are significant.
+ */
 void progressiveOverflowAlgorithm() {
     int array[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     int overflowThreshold = 7; // Set the overflow threshold for demonstration
@@ -319,9 +636,20 @@ void progressiveOverflowAlgorithm() {
         }
     }
 }
-
-// main menu
-
+/**
+ * @brief Displays the main menu and handles user choices.
+ *
+ * This function presents a menu with options for user authentication,
+ * event details management, attendee management, schedule organization,
+ * and feedback collection. It prompts the user to enter their choice
+ * and executes the corresponding function based on the input.
+ *
+ * The menu continues to display until the user chooses to exit by
+ * selecting the exit option. Input is validated, and any invalid
+ * choices prompt the user to try again.
+ *
+ * @return Returns false if the user chooses to exit; otherwise, returns true.
+ */
 bool mainMenu() {
     int choice;
     do {
@@ -363,8 +691,19 @@ bool mainMenu() {
     return true;
 }
 
-
-
+/**
+ * @brief Executes the Progressive Overflow algorithm.
+ *
+ * This function demonstrates the Progressive Overflow algorithm by
+ * iterating through a predefined array of integers. It calculates
+ * the cumulative sum of the elements and checks if the sum exceeds
+ * a specified overflow threshold. If an overflow is detected, it
+ * prints a message indicating the index at which the overflow
+ * occurred and resets the current sum to zero for simplicity.
+ *
+ * This function serves as a demonstration of how to handle
+ * overflow conditions in a sequence of operations.
+ */
 void progressiveOverflow() {
     printf("Executing Progressive Overflow algorithm...\n");
     int array[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -380,6 +719,22 @@ void progressiveOverflow() {
     }
 }
 
+
+/**
+ * @brief Executes the Linear Probing algorithm for hash table insertion.
+ *
+ * This function demonstrates the Linear Probing collision resolution
+ * technique in a hash table. It initializes a hash table of size 10
+ * and attempts to insert a predefined set of keys into the table.
+ * When a collision occurs, the function searches for the next available
+ * index in a linear manner, wrapping around to the start of the table
+ * if necessary. If the table is full, it notifies the user that the
+ * key cannot be placed.
+ *
+ * After attempting to place all keys, the function prints the contents
+ * of the hash table, showing the index and the corresponding key, or
+ * indicating if the index is empty.
+ */
 void linearProbing() {
     printf("Executing Linear Probing algorithm...\n");
     int hashTable[10];
@@ -420,8 +775,20 @@ void linearProbing() {
     }
 }
 
-
-
+/**
+ * @brief Executes the Quadratic Probing algorithm for hash table insertion.
+ *
+ * This function demonstrates the Quadratic Probing collision resolution
+ * technique in a hash table. It initializes a hash table of size 10
+ * and attempts to insert a predefined set of keys into the table.
+ * When a collision occurs, the function uses a quadratic probing method
+ * to find the next available index by incrementing the offset
+ * quadratically. The process continues until an empty slot is found
+ * for each key.
+ *
+ * After attempting to place all keys, the function prints the contents
+ * of the hash table, showing the index and the corresponding key.
+ */
 void quadraticProbing() {
     printf("Executing Quadratic Probing algorithm...\n");
     int hashTable[10] = { 0 };
@@ -442,136 +809,243 @@ void quadraticProbing() {
     }
 }
 
-
+/**
+ * @brief Executes the Double Hashing algorithm for hash table insertion.
+ *
+ * This function implements the Double Hashing collision resolution technique in a hash table.
+ * It initializes a hash table of size 10 and attempts to insert a predefined set of keys.
+ * When a collision occurs, the function computes a second hash value to determine the step size
+ * for probing, thus minimizing clustering in the table. The process continues until an empty
+ * slot is found for each key.
+ *
+ * After attempting to place all keys, the function prints the contents of the hash table,
+ * showing the index and the corresponding key.
+ */
 void doubleHashing() {
     printf("Executing Double Hashing algorithm...\n");
-    int hashTable[10] = { 0 };  // Hash tablosu baþlangýçta 0
-    int keys[] = { 23, 45, 12, 37, 29 };  // Eklenecek anahtarlar
-    int size = sizeof(keys) / sizeof(keys[0]);  // Anahtarlarýn sayýsý
+    int hashTable[10] = { 0 };  // Hash table initialized to 0
+    int keys[] = { 23, 45, 12, 37, 29 };  // Keys to be added
+    int size = sizeof(keys) / sizeof(keys[0]);  // Number of keys
 
     for (int i = 0; i < size; i++) {
-        int index = keys[i] % 10;  // Anahtar için ilk hash hesaplamasý
-        int step = 7 - (keys[i] % 7);  // Çift hashleme için ikinci hash fonksiyonu
-        while (hashTable[index] != 0) {  // Eðer yer doluysa
-            index = (index + step) % 10;  // Çakýþma çözümü için adým ekle
+        int index = keys[i] % 10;  // First hash computation for the key
+        int step = 7 - (keys[i] % 7);  // Second hash function for double hashing
+        while (hashTable[index] != 0) {  // If the slot is occupied
+            index = (index + step) % 10;  // Add step to resolve collision
         }
-        hashTable[index] = keys[i];  // Anahtarý doðru indekse yerleþtir
+        hashTable[index] = keys[i];  // Place the key in the correct index
     }
 
-    // Hash tablosunun çýktýsýný yazdýr
+    // Print the contents of the hash table
     for (int i = 0; i < 10; i++) {
         printf("Index %d: %d\n", i, hashTable[i]);
     }
 }
 
-
+/**
+ * @brief Executes the Use of Buckets algorithm for storing keys.
+ *
+ * This function implements a simple bucket-based hashing method for storing
+ * keys in a multi-dimensional array (buckets). It initializes an array of
+ * buckets and inserts a predefined set of keys based on their modulo with
+ * respect to the number of buckets.
+ *
+ * Each key is assigned to a bucket determined by the expression `key % 3`.
+ * The function iterates through the selected bucket to find an empty slot
+ * (indicated by a value of 0) and places the key there. The process continues
+ * until all keys are inserted into their respective buckets.
+ *
+ * After insertion, the contents of each bucket are printed, showing the keys
+ * stored within each one.
+ */
 void useBuckets() {
     printf("Executing Use of Buckets algorithm...\n");
-    int buckets[3][10] = { 0 };
-    int keys[] = { 23, 45, 12, 37, 29 };
-    int size = sizeof(keys) / sizeof(keys[0]);
+    int buckets[3][10] = { 0 };  // Initialize buckets (3 buckets, each can hold 10 keys)
+    int keys[] = { 23, 45, 12, 37, 29 };  // Keys to be added
+    int size = sizeof(keys) / sizeof(keys[0]);  // Number of keys
 
     for (int i = 0; i < size; i++) {
-        int bucketIndex = keys[i] % 3;
+        int bucketIndex = keys[i] % 3;  // Determine the bucket index
         for (int j = 0; j < 10; j++) {
-            if (buckets[bucketIndex][j] == 0) {
-                buckets[bucketIndex][j] = keys[i];
-                break;
+            if (buckets[bucketIndex][j] == 0) {  // Find an empty slot
+                buckets[bucketIndex][j] = keys[i];  // Place the key
+                break;  // Exit loop after placing the key
             }
         }
     }
 
+    // Print the contents of each bucket
     for (int i = 0; i < 3; i++) {
         printf("Bucket %d: ", i);
         for (int j = 0; j < 10; j++) {
             if (buckets[i][j] != 0) {
-                printf("%d ", buckets[i][j]);
+                printf("%d ", buckets[i][j]);  // Print non-empty keys
             }
         }
         printf("\n");
     }
 }
-
-
+/**
+ * @brief Executes the Linear Quotient algorithm for storing keys in a hash table.
+ *
+ * This function implements a linear probing hashing method to handle collisions
+ * when inserting keys into a hash table. It initializes a hash table and uses
+ * a predefined set of keys for insertion.
+ *
+ * The algorithm computes the initial index for each key using the modulo operation
+ * `key % 10`. If the computed index is already occupied (indicated by a non-zero
+ * value in the hash table), the function increments the index linearly (by one)
+ * until it finds an empty slot. Once an empty slot is located, the key is
+ * inserted into that position.
+ *
+ * After processing all keys, the contents of the hash table are printed,
+ * showing the keys stored at each index.
+ */
 void linearQuotient() {
     printf("Executing Linear Quotient algorithm...\n");
-    int hashTable[10] = { 0 };
-    int keys[] = { 23, 45, 12, 37, 29 };
-    int size = sizeof(keys) / sizeof(keys[0]);
+    int hashTable[10] = { 0 };  // Initialize the hash table with 0
+    int keys[] = { 23, 45, 12, 37, 29 };  // Keys to be added
+    int size = sizeof(keys) / sizeof(keys[0]);  // Number of keys
 
     for (int i = 0; i < size; i++) {
-        int index = keys[i] % 10;
-        int increment = 1; // Linear increment
-        while (hashTable[index] != 0) {
-            index = (index + increment) % 10;
+        int index = keys[i] % 10;  // Compute the initial index
+        int increment = 1;  // Linear increment for probing
+        while (hashTable[index] != 0) {  // Check for collisions
+            index = (index + increment) % 10;  // Increment index linearly
         }
-        hashTable[index] = keys[i];
+        hashTable[index] = keys[i];  // Insert the key into the hash table
     }
 
+    // Print the contents of the hash table
     for (int i = 0; i < 10; i++) {
-        printf("Index %d: %d\n", i, hashTable[i]);
+        printf("Index %d: %d\n", i, hashTable[i]);  // Display each index and its key
     }
 }
+/**
+ * @brief Executes Brent's Method for storing keys in a hash table.
+ *
+ * This function demonstrates the use of Brent's Method for collision resolution
+ * in a hash table. The method is designed to efficiently handle collisions
+ * by incrementally exploring potential slots for inserting keys.
+ *
+ * The function initializes a hash table and a predefined set of keys for insertion.
+ * The initial index for each key is calculated using the modulo operation
+ * `key % 10`. If the calculated index is already occupied, the method
+ * attempts to find the next available slot using Brent's Method, which involves
+ * incrementing the step size and exploring further indices in the hash table.
+ *
+ * However, the core logic for resolving collisions is currently commented out,
+ * meaning that if a collision occurs, the keys will not be inserted correctly.
+ * Therefore, only the initial indices for keys will be displayed in the output.
+ *
+ * After processing the keys, the function prints the contents of the hash table,
+ * showing the keys stored at each index.
+ */
 
 void brentsMethod() {
     printf("Executing Brent's Method algorithm...\n");
-    int hashTable[10] = { 0 };
-    int keys[] = { 23, 45, 12, 37, 29 };
-    int size = sizeof(keys) / sizeof(keys[0]);
+    int hashTable[10] = { 0 };  // Initialize the hash table with 0
+    int keys[] = { 23, 45, 12, 37, 29 };  // Keys to be added
+    int size = sizeof(keys) / sizeof(keys[0]);  // Number of keys
 
     for (int i = 0; i < size; i++) {
-        int index = keys[i] % 10;
-        int step = 1; // Initial step
-       /* while (hashTable[index] != 0) {
-            int newIndex = (index + step) % 10;
-            if (hashTable[newIndex] == 0) {
-                index = newIndex;
-                break;
+        int index = keys[i] % 10;  // Compute the initial index
+        int step = 1;  // Initial step size
+        /* while (hashTable[index] != 0) {  // Check for collisions
+            int newIndex = (index + step) % 10;  // Compute new index
+            if (hashTable[newIndex] == 0) {  // Check if new index is free
+                index = newIndex;  // Update index to the new slot
+                break;  // Exit the loop if a slot is found
             }
-            step++;
-        }*/
-        hashTable[index] = keys[i];
+            step++;  // Increment step size for further probing
+        } */
+        hashTable[index] = keys[i];  // Insert the key into the hash table
     }
 
+    // Print the contents of the hash table
     for (int i = 0; i < 10; i++) {
-        printf("Index %d: %d\n", i, hashTable[i]);
+        printf("Index %d: %d\n", i, hashTable[i]);  // Display each index and its key
     }
 }
 
+/**
+ * @brief Handles various file operations based on user choice.
+ *
+ * This function takes a user's choice as input and executes the corresponding
+ * hashing algorithm or operation. Each case in the switch statement calls
+ * a specific function that implements a particular algorithm or data structure
+ * operation related to hash tables or data management.
+ *
+ * @param choice An integer representing the user's selection from the menu.
+ *               The valid choices are as follows:
+ *               - 1: Execute Progressive Overflow algorithm
+ *               - 2: Execute Linear Probing algorithm
+ *               - 3: Execute Quadratic Probing algorithm
+ *               - 4: Execute Double Hashing algorithm
+ *               - 5: Execute Bucket Usage algorithm
+ *               - 6: Execute Linear Quotient algorithm
+ *               - 7: Execute Brent's Method algorithm
+ *               - 8: Return to the Authentication Menu
+ *
+ * If an invalid choice is provided, the function will notify the user to
+ * try again.
+ */
 void handleFileOperation(int choice) {
     switch (choice) {
     case 1:
-        progressiveOverflow();
+        progressiveOverflow();  // Execute the Progressive Overflow algorithm
         break;
     case 2:
-        linearProbing();
+        linearProbing();  // Execute the Linear Probing algorithm
         break;
     case 3:
-        quadraticProbing();
+        quadraticProbing();  // Execute the Quadratic Probing algorithm
         break;
     case 4:
-        doubleHashing();
+        doubleHashing();  // Execute the Double Hashing algorithm
         break;
     case 5:
-        useBuckets();
+        useBuckets();  // Execute the Use of Buckets algorithm
         break;
     case 6:
-        linearQuotient();
+        linearQuotient();  // Execute the Linear Quotient algorithm
         break;
     case 7:
-        brentsMethod();
+        brentsMethod();  // Execute Brent's Method algorithm
         break;
     case 8:
-        printf("Returning to Authentication Menu.\n");
+        printf("Returning to Authentication Menu.\n");  // Inform the user of return
         break;
     default:
-        printf("Invalid choice. Please try again.\n");
+        printf("Invalid choice. Please try again.\n");  // Handle invalid choices
     }
 }
 
+/**
+ * @brief Displays the File Operations Menu and handles user choices.
+ *
+ * This function presents a menu of file operations related to various hashing
+ * algorithms and data structures. It prompts the user to enter a choice,
+ * validates the input, and calls the appropriate handler function for the
+ * selected operation. The menu will continue to be displayed until the user
+ * chooses to return to the authentication menu.
+ *
+ * The valid choices are as follows:
+ * - 1: Progressive Overflow
+ * - 2: Linear Probing
+ * - 3: Quadratic Probing
+ * - 4: Double Hashing
+ * - 5: Use of Buckets
+ * - 6: Linear Quotient
+ * - 7: Brent's Method
+ * - 8: Back to Authentication Menu
+ *
+ * Upon receiving the choice, the function invokes the `handleFileOperation`
+ * function to execute the corresponding operation.
+ */
 void fileOperationsMenu() {
     int choice;
-  do {
+    do {
         printf("----------- File Operations Menu -----------\n");
         printf("1. Progressive Overflow\n");
         printf("2. Linear Probing\n");
@@ -585,15 +1059,36 @@ void fileOperationsMenu() {
         scanf("%d", &choice);
 
         if (choice == 8) {
-            handleFileOperation(choice);
+            handleFileOperation(choice);  // Handle back to authentication menu
             break;
         }
-        handleFileOperation(choice);
-  } while (choice != 8);
+        handleFileOperation(choice);  // Execute the chosen file operation
+    } while (choice != 8);
 }
 
-
-
+/**
+ * @brief Displays the Authentication Menu and handles user choices.
+ *
+ * This function presents a menu for user authentication, allowing users to
+ * register, log in, log in as a guest, or access file operations. It prompts
+ * the user to enter a choice and executes the corresponding action based on
+ * the input.
+ *
+ * The valid choices are as follows:
+ * - 1: Register - Initiates the user registration process.
+ * - 2: Login - Prompts for login credentials and attempts to log the user in.
+ * - 3: Guest Login - Provides access to the system as a guest user.
+ * - 4: File Operations for Fast Search Operations - Directs the user to the
+ *    file operations menu.
+ * - 5: Return to Main Menu - Exits the authentication menu and returns to the
+ *    main menu.
+ *
+ * After executing the selected action, the function will return to the
+ * authentication menu unless the user chooses to return to the main menu.
+ *
+ * @return true if the user remains in the authentication menu; false if the
+ *         user chooses to return to the main menu.
+ */
 bool authentication() {
     int login;
     printf("----------- Authentication Menu -----------\n");
@@ -635,7 +1130,24 @@ bool authentication() {
     return true;
 }
 
-// User registration
+/**
+ * @brief Handles user registration by collecting user information.
+ *
+ * This function prompts the user to enter their name, surname, phone number,
+ * and password to create a new user account. Upon receiving the input, it
+ * stores the new user data using the `saveUserData` function and displays a
+ * confirmation message.
+ *
+ * After successfully registering the user, it prints the current state of the
+ * hash table (presumably containing user records) and then redirects the user
+ * to the main menu.
+ *
+ * The function does not accept any parameters and returns true to indicate
+ * successful registration.
+ *
+ * @return true if registration is successful and the user is redirected to
+ *         the main menu.
+ */
 bool Register() {
     User newUser;
     printf("Enter your name: ");
@@ -651,11 +1163,23 @@ bool Register() {
     clear_screen();
     printf("Registration successful! You can now log in.\n");
 
-    printHashTable(); //Print table after each record
+    printHashTable(); // Print table after each record
     mainMenu();
     return true;
 }
 
+/**
+ * @brief Handles user login by validating phone number and password.
+ *
+ * This function prompts the user to enter their phone number and password.
+ * It then calls the `validateLogin` function to check if the provided
+ * credentials are valid.
+ *
+ * The function does not accept any parameters and returns a boolean value
+ * indicating the success or failure of the login attempt.
+ *
+ * @return true if the login is successful; false otherwise.
+ */
 bool logIn() {
     char phone[20];
     char password[20];
@@ -664,17 +1188,40 @@ bool logIn() {
     printf("Enter your password: ");
     scanf("%s", password);
 
-    return validateLogin(phone, password); // Login doðruluðunu kontrol et
+    return validateLogin(phone, password); // Check login validity
 }
 
-// guest mode
+/**
+ * @brief Handles guest login mode.
+ *
+ * This function simulates a guest login by displaying a success message.
+ * It does not require any user credentials and grants access to the
+ * system in a limited capacity (as defined by the application's logic).
+ *
+ * The function does not accept any parameters and returns true to indicate
+ * the successful entry into guest mode.
+ *
+ * @return true to signify that guest login was successful.
+ */
 bool guest() {
     clear_screen();
     printf("Guest login successful!\n");
     return true;
 }
 
-// Function to create a new event
+/**
+ * @brief Creates a new event and saves it to a linked list and a binary file.
+ *
+ * This function prompts the user to enter details for a new event, including
+ * the event type, date, color option, and concept. It then allocates memory
+ * for the new event and appends it to a linked list of events. Finally, it
+ * attempts to write the event data to a binary file named "event.bin".
+ *
+ * The function does not take any parameters and returns a boolean value
+ * indicating the success or failure of the event creation process.
+ *
+ * @return true if the event is created and saved successfully; false otherwise.
+ */
 bool createEvent() {
     Event* newEvent = (Event*)malloc(sizeof(Event));
 
@@ -701,7 +1248,7 @@ bool createEvent() {
     }
     tail = newEvent;
 
-    // Write event data to the binary file "evet"
+    // Write event data to the binary file "event.bin"
     FILE* file = fopen("event.bin", "ab");
     //if (file == NULL) {
     //    perror("Error opening file");
@@ -722,9 +1269,20 @@ bool createEvent() {
     return true;
 }
 
-
-
-// Function to manage events
+/**
+ * @brief Manages the display and modification of events in a linked list.
+ *
+ * This function allows the user to navigate through a list of events,
+ * displaying information for the current event and providing options
+ * to move to the next or previous event, update event details, or
+ * return to the main menu.
+ *
+ * The function utilizes a linked list of events and interacts with the
+ * user through the console to facilitate event management.
+ *
+ * @return true if the user chooses to return to the main menu; false if
+ * an event was updated or if no events are available.
+ */
 bool manageEvent() {
     //if (head == NULL) {
     //    printf("No events available. Please create an event first.\n");
@@ -794,8 +1352,17 @@ bool manageEvent() {
     return true; // Added return statement here
 }
 
-
-// Event Details main menu
+/**
+ * @brief Displays the event management menu and handles user choices.
+ *
+ * This function presents a menu for event management, allowing the user
+ * to create new events, manage existing events, or return to the main menu.
+ * Depending on the user's choice, it invokes the appropriate functions for
+ * event creation or management.
+ *
+ * @return true if the user wants to continue using the event menu;
+ * false if the user chooses to return to the main menu.
+ */
 bool eventDetails() {
     int event;
     printf("\n----------- Event Menu -----------\n");
@@ -822,28 +1389,124 @@ bool eventDetails() {
     return true;
 }
 
+/**
+ * @brief Maximum number of attendees allowed for an event.
+ *
+ * This constant defines the maximum number of attendees that can be
+ * registered for any event in the event management system.
+ * If the number of attendees exceeds this limit, additional
+ * attendees cannot be added.
+ */
 #define MAX_ATTENDEES 100
+
+ /**
+  * @brief Maximum length for names in the system.
+  *
+  * This constant defines the maximum character length allowed
+  * for attendee names (both first name and surname) in the event
+  * management system. Names longer than this limit will be truncated
+  * or rejected during input.
+  */
 #define MAX_NAME_LENGTH 50
 
-// Struct to hold attendee details
+  /**
+   * @brief Struct to hold attendee details.
+   *
+   * This structure stores information about an attendee, including their
+   * name, surname, and a Huffman code for encoding or identification.
+   */
 typedef struct {
-    char nameAttendee[MAX_NAME_LENGTH];
-    char surnameAttendee[MAX_NAME_LENGTH];
-    char huffmanCode[MAX_NAME_LENGTH]; // Assuming Huffman code is stored as a string
+    char nameAttendee[MAX_NAME_LENGTH];    ///< Attendee's first name.
+    char surnameAttendee[MAX_NAME_LENGTH]; ///< Attendee's surname.
+    char huffmanCode[MAX_NAME_LENGTH];     ///< Huffman code representing the attendee.
 } Attendee;
 
-Attendee attendees[MAX_ATTENDEES];
-int attendeeCount = 0;
+// Array to hold attendees
+Attendee attendees[MAX_ATTENDEES]; ///< Array to store up to MAX_ATTENDEES attendees.
 
-// Function prototypes
+/**
+ * @brief Counter for the number of attendees registered.
+ *
+ * This variable keeps track of the total number of attendees currently
+ * registered in the event management system.
+ */
+int attendeeCount = 0; ///< Number of registered attendees.
+
+/**
+ * @brief Performs the KMP (Knuth-Morris-Pratt) search algorithm.
+ *
+ * This function searches for a specified pattern within a string using the
+ * KMP algorithm, which is efficient for substring searching. The results
+ * will indicate the starting indices of the pattern within the string.
+ *
+ * @param pattern Pointer to the character array representing the pattern to search for.
+ */
 void kmpSearch(char* pattern);
+
+/**
+ * @brief Computes the Longest Prefix Suffix (LPS) array for the KMP algorithm.
+ *
+ * The LPS array is used to optimize the KMP search by skipping unnecessary comparisons.
+ * It indicates the longest proper prefix of the pattern that is also a suffix for each prefix.
+ *
+ * @param pattern Pointer to the character array representing the pattern.
+ * @param M Length of the pattern (number of characters in the pattern).
+ * @param lps Pointer to an integer array that will be filled with the LPS values.
+ */
 void computeLPSArray(char* pattern, int M, int* lps);
+
+/**
+ * @brief Compresses the name of an attendee.
+ *
+ * This function modifies the attendee's name, potentially to fit within storage limits or to
+ * optimize representation. The exact compression algorithm is implementation-dependent.
+ *
+ * @param attendee Pointer to the Attendee structure whose name is to be compressed.
+ */
 void compressAttendeeName(Attendee* attendee);
+
+/**
+ * @brief Registers attendees for the event.
+ *
+ * This function handles the registration process, including collecting attendee details
+ * and storing them in the system. It may involve input validation and duplication checks.
+ *
+ * @return Returns true if registration was successful, false otherwise.
+ */
 bool registerAttendees();
+
+/**
+ * @brief Prints the details of all registered attendees.
+ *
+ * This function iterates through the list of registered attendees and displays their
+ * information in a readable format.
+ */
 void printAttendees();
+
+/**
+ * @brief Manages attendee-related functionalities.
+ *
+ * This function provides a menu or interface for operations related to attendees, such as
+ * registration, viewing attendee details, or other related actions.
+ *
+ * @return Returns true to indicate the menu is active; returns false when returning to the main menu.
+ */
 bool attendee();
 
-// Knuth-Morris-Pratt (KMP) search function
+/**
+ * @brief Performs the Knuth-Morris-Pratt (KMP) search for a pattern in attendee Huffman codes.
+ *
+ * This function searches for a specified pattern within the Huffman codes of registered
+ * attendees. It converts both the pattern and the Huffman codes to lowercase for case-insensitive
+ * comparison. If a match is found, it prints the names of the attendees whose Huffman codes contain
+ * the pattern.
+ *
+ * @param pattern Pointer to the character array representing the pattern to search for.
+ *
+ * This function dynamically allocates memory for the Longest Prefix Suffix (LPS) array used in
+ * the KMP algorithm and frees it after use. If no matches are found, it can be configured to print
+ * a message indicating that no match was found.
+ */
 void kmpSearch(char* pattern) {
     // Convert pattern to lowercase to make comparison case-insensitive
     for (int i = 0; pattern[i]; i++) {
@@ -886,8 +1549,23 @@ void kmpSearch(char* pattern) {
         printf("No match found.\n");
     }*/
 }
-
-// Compute the LPS array for the pattern (used in KMP search)
+/**
+ * @brief Computes the Longest Prefix Suffix (LPS) array for a given pattern.
+ *
+ * The LPS array is used in the Knuth-Morris-Pratt (KMP) string matching algorithm
+ * to determine the longest proper prefix of the pattern that is also a suffix. This
+ * information allows the KMP algorithm to skip unnecessary comparisons in the search
+ * process.
+ *
+ * @param pattern Pointer to the character array representing the pattern for which the
+ *                LPS array is to be computed.
+ * @param M The length of the pattern.
+ * @param lps Pointer to an array where the computed LPS values will be stored.
+ *
+ * The LPS array is initialized with the first element set to 0, and the function processes
+ * the pattern to fill the LPS array based on matching characters. This helps optimize the
+ * KMP search algorithm by allowing it to skip certain comparisons when a mismatch occurs.
+ */
 void computeLPSArray(char* pattern, int M, int* lps) {
     int length = 0; // length of the previous longest prefix suffix
     lps[0] = 0; // LPS[0] is always 0
@@ -912,7 +1590,22 @@ void computeLPSArray(char* pattern, int M, int* lps) {
     }
 }
 
-// Function to compress and store the Huffman code for each attendee's name
+/**
+ * @brief Compresses and stores the Huffman code for an attendee's name.
+ *
+ * This function takes an attendee's name and simulates the process of Huffman
+ * coding by storing the name directly in the `huffmanCode` field of the
+ * `Attendee` structure. In a complete implementation, this function would
+ * contain the logic to generate an actual Huffman code for compression.
+ *
+ * @param attendee Pointer to an `Attendee` structure whose name will be compressed
+ *                 and stored as a Huffman code.
+ *
+ * The function copies each character from the attendee's name to the `huffmanCode`
+ * array. For simplicity, it directly stores the name characters instead of generating
+ * a true Huffman code. The resulting `huffmanCode` string is null-terminated to ensure
+ * proper string handling in C.
+ */
 void compressAttendeeName(Attendee* attendee) {
     int len = strlen(attendee->nameAttendee);
     // Directly store the name for simplicity (as a placeholder for actual Huffman coding)
@@ -922,14 +1615,29 @@ void compressAttendeeName(Attendee* attendee) {
     attendee->huffmanCode[len] = '\0'; // Null terminate the string
 }
 
-// Main function for registering attendees
+/**
+ * @brief Registers attendees and saves their information in a binary file.
+ *
+ * This function prompts the user for the number of attendees and collects
+ * their names and surnames. It then compresses the attendees' names into
+ * a simulated Huffman code and saves all the attendee information in a
+ * binary file named "attendee.bin".
+ *
+ * The user is asked how many attendees will register. If the number
+ * exceeds the defined limit or is invalid, an error message is displayed.
+ * For each attendee, their name and surname are collected, compressed,
+ * and saved to the binary file.
+ *
+ * @return true if the registration is successful; false if there is an
+ *         error opening the file or writing data.
+ */
 bool registerAttendees() {
     int count;
     FILE* file = fopen("attendee.bin", "ab"); // Binary modunda aç (ekleme için)
-   /* if (file == NULL) {
-        perror("Error opening file");
-        return false;
-    }*/
+    /* if (file == NULL) {
+         perror("Error opening file");
+         return false;
+     }*/
 
     printf("How many people will attend? ");
     scanf("%d", &count);
@@ -949,8 +1657,8 @@ bool registerAttendees() {
 
         // Katýlýmcý bilgilerini binary dosyasýna yaz
         if (fwrite(&attendees[attendeeCount], sizeof(Attendee), 1, file) != 1) {
-         /*   perror("Error writing to file");
-            fclose(file);*/
+            /*   perror("Error writing to file");
+               fclose(file);*/
             return false;
         }
 
@@ -962,16 +1670,41 @@ bool registerAttendees() {
     return true;
 }
 
-
-// Function to print all registered attendees and their Huffman codes
+/**
+ * @brief Prints the details of all registered attendees.
+ *
+ * This function iterates through the array of registered attendees and
+ * displays each attendee's name, surname, and their corresponding
+ * Huffman code. The information is printed to the standard output.
+ *
+ * It is assumed that the attendeeCount variable accurately reflects the
+ * number of attendees currently registered.
+ */
 void printAttendees() {
     printf("\nRegistered Attendees:\n");
     for (int i = 0; i < attendeeCount; i++) {
         printf("Name: %s, Surname: %s, Huffman Code: %s\n", attendees[i].nameAttendee, attendees[i].surnameAttendee, attendees[i].huffmanCode);
     }
 }
-
-// Main attendee menu function
+/**
+ * @brief Displays the attendee menu and handles user interactions.
+ *
+ * This function presents a menu for managing attendees, including
+ * options to register attendees, search for attendees, print a list of
+ * registered attendees, and manage the attendees list (add/remove).
+ * It utilizes the Knuth-Morris-Pratt (KMP) algorithm to search through
+ * the Huffman codes of attendees.
+ *
+ * @return Returns true if the user selects an option that leads to
+ *         a return to the main menu; otherwise, returns false.
+ *
+ * The following options are available in the attendee menu:
+ * 1. Register Attendees
+ * 2. Track Attendees (search by name in Huffman code)
+ * 3. Print Attendees
+ * 4. Manage Attendees List (add, remove, or display activity history)
+ * 5. Return to main menu
+ */
 bool attendee() {
     int choice;
     printf("----------- Attendee Menu -----------\n");
@@ -1047,138 +1780,257 @@ bool attendee() {
     return true;
 }
 
-#define MAX_SIZE 100 
-#define STACK_SIZE 100
-#define QUEUE_SIZE 100
+/**
+ * @brief Maximum number of elements allowed in various data structures.
+ *
+ * These constants define the limits for different data structures
+ * used in the event management system.
+ *
+ * - MAX_SIZE: Maximum size for arrays or collections that may need to
+ *   hold multiple elements.
+ * - STACK_SIZE: Maximum number of elements that can be stored in a
+ *   stack data structure.
+ * - QUEUE_SIZE: Maximum number of elements that can be stored in a
+ *   queue data structure.
+ */
+#define MAX_SIZE 100  /**< Maximum size for arrays or collections. */
+#define STACK_SIZE 100 /**< Maximum size for the stack data structure. */
+#define QUEUE_SIZE 100 /**< Maximum size for the queue data structure. */
 
-// Sparse Matrix Structure
+ /**
+  * @brief Structure to represent a sparse matrix for storing activity details.
+  *
+  * A sparse matrix is used to efficiently store activities where most of the
+  * elements are zero. This structure maintains the non-zero entries in
+  * separate arrays for rows, columns, and their corresponding values.
+  */
 typedef struct {
-    int row[MAX_SIZE];
-    int col[MAX_SIZE];
-    char value[MAX_SIZE][100];  // Store activity details
-    int size;  // Number of non-zero entries
+    int row[MAX_SIZE];         /**< Array to store the row indices of non-zero entries. */
+    int col[MAX_SIZE];         /**< Array to store the column indices of non-zero entries. */
+    char value[MAX_SIZE][100]; /**< Array to store the activity details for non-zero entries. */
+    int size;                  /**< Number of non-zero entries in the sparse matrix. */
 } SparseMatrix;
 
-SparseMatrix activityMatrix;  // Global sparse matrix for activities
+/** Global sparse matrix for activities. */
+SparseMatrix activityMatrix; /**< Sparse matrix instance to store activity details. */
 
-// Stack Structure
+
+/**
+ * @brief Structure to represent a stack for storing activities.
+ *
+ * This stack is used to keep track of activities in a last-in-first-out (LIFO)
+ * manner, allowing for easy retrieval of the most recently added activities.
+ */
 typedef struct {
-    char items[STACK_SIZE][100];
-    int top;
+    char items[STACK_SIZE][100]; /**< Array to store the items in the stack. */
+    int top;                     /**< Index of the top element in the stack. */
 } Stack;
 
-Stack activityStack;  // Stack for storing activities
+/** Global stack for storing activities. */
+Stack activityStack; /**< Stack instance for managing activities. */
 
-// Queue Structure
+/**
+ * @brief Structure to represent a queue for storing activities.
+ *
+ * This queue follows the first-in-first-out (FIFO) principle, allowing
+ * activities to be added and retrieved in the order they were added.
+ */
 typedef struct {
-    char items[QUEUE_SIZE][100];
-    int front, rear;
+    char items[QUEUE_SIZE][100]; /**< Array to store the items in the queue. */
+    int front;                   /**< Index of the front element in the queue. */
+    int rear;                    /**< Index of the rear element in the queue. */
 } Queue;
 
-Queue activityQueue;  // Queue for storing activities
+/** Global queue for storing activities. */
+Queue activityQueue; /**< Queue instance for managing activities. */
 
-// XOR Linked List Structure
+
+/**
+ * @brief Structure to represent a node in an XOR linked list.
+ *
+ * Each node in this structure contains a value and a pointer that holds
+ * the XOR of the previous and next nodes. This allows for efficient memory
+ * usage by utilizing the same pointer for both previous and next references.
+ */
 typedef struct XORNode {
-    char value[100];
-    struct XORNode* both; // XOR of previous and next node
+    char value[100];           /**< Value stored in the node. */
+    struct XORNode* both;     /**< XOR of the previous and next node pointers. */
 } XORNode;
 
-XORNode* xorHead = NULL; // Head of the XOR linked list
+/** Head of the XOR linked list. */
+XORNode* xorHead = NULL; /**< Pointer to the first node in the XOR linked list. */
 
-// Function to get the XOR of two pointers
+
+/**
+ * @brief Function to compute the XOR of two pointers.
+ *
+ * This function takes two pointers and returns their XOR value, which can
+ * be used to navigate an XOR linked list.
+ *
+ * @param a Pointer to the first node.
+ * @param b Pointer to the second node.
+ * @return XOR of the two pointers.
+ */
 XORNode* XOR(XORNode* a, XORNode* b) {
     return (XORNode*)((uintptr_t)(a) ^ (uintptr_t)(b));
 }
 
-// Function to add a new node to the XOR linked list
+/**
+ * @brief Adds a new node with the specified value to the XOR linked list.
+ *
+ * This function creates a new node, initializes its value, and updates
+ * the XOR pointers accordingly to maintain the structure of the linked list.
+ *
+ * @param value The value to be stored in the new node.
+ */
 void addToXORList(const char* value) {
-    XORNode* newNode = (XORNode*)malloc(sizeof(XORNode));
-    strcpy(newNode->value, value);
-    newNode->both = XOR(xorHead, NULL); // Set both to XOR of head and NULL
+    XORNode* newNode = (XORNode*)malloc(sizeof(XORNode)); /**< Allocate memory for the new node. */
+    strcpy(newNode->value, value);                        /**< Copy the value into the new node. */
+    newNode->both = XOR(xorHead, NULL);                   /**< Set both pointer to XOR of head and NULL. */
 
     if (xorHead != NULL) {
-        // Update head's both pointer
-        XORNode* next = XOR(xorHead->both, NULL);
-        xorHead->both = XOR(newNode, next);
+        // Update the both pointer of the current head
+        XORNode* next = XOR(xorHead->both, NULL);         /**< Get the next node by XORing head's both pointer. */
+        xorHead->both = XOR(newNode, next);                /**< Update head's both pointer. */
     }
-    xorHead = newNode; // Move head to the new node
+
+    xorHead = newNode;                                    /**< Move head to the new node. */
 }
 
-// Function to remove a node from the XOR linked list
+/**
+ * @brief Removes a node with the specified value from the XOR linked list.
+ *
+ * This function traverses the XOR linked list to find a node containing
+ * the specified value. If found, it updates the pointers of the previous
+ * and next nodes to maintain the integrity of the list and frees the
+ * memory allocated for the removed node.
+ *
+ * @param value The value of the node to be removed.
+ */
 void removeFromXORList(const char* value) {
-    XORNode* current = xorHead;
-    XORNode* prev = NULL;
-    XORNode* next;
+    XORNode* current = xorHead;  /**< Pointer to the current node being examined. */
+    XORNode* prev = NULL;         /**< Pointer to the previous node. */
+    XORNode* next;                /**< Pointer to the next node. */
 
     while (current != NULL) {
         if (strcmp(current->value, value) == 0) {
+            // Node to be removed is found
             if (prev != NULL) {
-                prev->both = XOR(prev->both, current);
+                prev->both = XOR(prev->both, current);  /**< Update previous node's both pointer. */
             }
             else {
-                xorHead = XOR(xorHead->both, NULL); // If it's the head node, adjust head
+                xorHead = XOR(xorHead->both, NULL);    /**< Adjust head if the current node is the head. */
             }
 
-            next = XOR(prev, current->both);
-            free(current);  // Free the current node
-            current = next; // Move to the next node
+            next = XOR(prev, current->both);           /**< Get the next node using XOR. */
+            free(current);                             /**< Free memory for the current node. */
+            current = next;                            /**< Move to the next node. */
         }
         else {
-            next = XOR(prev, current->both);
-            prev = current;
-            current = next;
+            next = XOR(prev, current->both);           /**< Get the next node using XOR. */
+            prev = current;                             /**< Move previous to the current node. */
+            current = next;                            /**< Move to the next node. */
         }
     }
 }
 
-// Function to display the XOR linked list
+/**
+ * @brief Displays the values stored in the XOR linked list.
+ *
+ * This function traverses the XOR linked list starting from the head
+ * and prints each node's value to the standard output. The values are
+ * displayed in the order they appear in the list, followed by "NULL"
+ * to indicate the end of the list.
+ */
 void displayXORList() {
-    XORNode* current = xorHead;
-    XORNode* prev = NULL;
-    XORNode* next;
+    XORNode* current = xorHead;  /**< Pointer to the current node being examined. */
+    XORNode* prev = NULL;         /**< Pointer to the previous node. */
+    XORNode* next;                /**< Pointer to the next node. */
 
     printf("Activity History: \n");
     while (current != NULL) {
-        printf("%s -> ", current->value);
-        next = XOR(prev, current->both); // Get the next node using XOR
-        prev = current;
-        current = next;
+        printf("%s -> ", current->value);            /**< Print the current node's value. */
+        next = XOR(prev, current->both);             /**< Get the next node using XOR. */
+        prev = current;                               /**< Move previous to the current node. */
+        current = next;                              /**< Move to the next node. */
     }
-    printf("NULL\n");
+    printf("NULL\n");                                 /**< Indicate the end of the list. */
 }
 
-// Function to initialize the XOR linked list
+
+/**
+ * @brief Initializes the XOR linked list.
+ *
+ * This function sets the head of the XOR linked list to NULL,
+ * indicating that the list is empty.
+ */
 void initializeXORList() {
     xorHead = NULL;  // Initialize head as NULL
 }
 
-// Function to initialize the sparse matrix
+/**
+ * @brief Initializes the sparse matrix.
+ *
+ * This function sets the size of the sparse matrix to zero,
+ * indicating that there are no non-zero entries in the matrix.
+ */
 void initializeSparseMatrix() {
     activityMatrix.size = 0;  // Initialize size to zero
 }
 
-// Function to initialize the stack
+/**
+ * @brief Initializes the stack for activities.
+ *
+ * This function sets the top of the activity stack to -1,
+ * indicating that the stack is currently empty.
+ */
 void initializeStack() {
     activityStack.top = -1;  // Stack is empty
 }
 
-// Function to initialize the queue
+/**
+ * @brief Initializes the queue for activities.
+ *
+ * This function sets the front and rear of the activity queue to 0,
+ * indicating that the queue is currently empty.
+ */
 void initializeQueue() {
     activityQueue.front = 0;
     activityQueue.rear = 0;  // Queue is empty
 }
 
-// Function to check if stack is full
+/**
+ * @brief Checks if the stack is full.
+ *
+ * @return true if the stack is full, false otherwise.
+ *
+ * This function compares the top of the stack with the maximum size
+ * to determine if the stack has reached its capacity.
+ */
 bool isStackFull() {
     return activityStack.top == STACK_SIZE - 1;
 }
 
-// Function to check if stack is empty
+/**
+ * @brief Checks if the stack is empty.
+ *
+ * @return true if the stack is empty, false otherwise.
+ *
+ * This function checks if the top of the stack is -1 to determine
+ * if there are no elements in the stack.
+ */
 bool isStackEmpty() {
     return activityStack.top == -1;
 }
 
-// Function to push activity onto stack
+/**
+ * @brief Pushes an activity onto the stack.
+ *
+ * This function adds a new activity to the top of the stack.
+ * If the stack is full, an error message is printed.
+ *
+ * @param activity A pointer to a string containing the activity to be pushed onto the stack.
+ */
 void pushStack(const char* activity) {
     if (!isStackFull()) {
         strcpy(activityStack.items[++activityStack.top], activity);
@@ -1188,7 +2040,12 @@ void pushStack(const char* activity) {
     }
 }
 
-// Function to pop activity from stack
+/**
+ * @brief Pops an activity from the stack.
+ *
+ * This function removes the activity at the top of the stack
+ * and prints it. If the stack is empty, an error message is printed.
+ */
 void popStack() {
     if (!isStackEmpty()) {
         printf("Popped activity: %s\n", activityStack.items[activityStack.top--]);
@@ -1198,27 +2055,57 @@ void popStack() {
     }
 }
 
-// Function to check if queue is full
+
+/**
+ * @brief Checks if the queue is full.
+ *
+ * This function determines if the queue has reached its maximum capacity.
+ * It checks if the rear index has reached the size limit of the queue.
+ *
+ * @return true if the queue is full; false otherwise.
+ */
 bool isQueueFull() {
     return activityQueue.rear == QUEUE_SIZE;
 }
 
-// Function to check if queue is empty
+/**
+ * @brief Checks if the queue is empty.
+ *
+ * This function determines if there are any items in the queue.
+ * It checks if the front index is equal to the rear index.
+ *
+ * @return true if the queue is empty; false otherwise.
+ */
 bool isQueueEmpty() {
     return activityQueue.front == activityQueue.rear;
 }
 
-// Function to enqueue activity into queue
+/**
+ * @brief Enqueues an activity into the queue.
+ *
+ * This function adds a new activity to the end of the queue.
+ * If the queue is not full, the activity is copied to the queue at the rear position,
+ * and the rear index is incremented.
+ *
+ * @param activity The activity to be added to the queue.
+ */
 void enqueue(const char* activity) {
     if (!isQueueFull()) {
         strcpy(activityQueue.items[activityQueue.rear++], activity);
     }
-    //else {
-    //    printf("Error: Queue is full!\n");
-    //}
+    // else {
+    //     printf("Error: Queue is full!\n");
+    // }
 }
 
-// Function to dequeue activity from queue
+/**
+ * @brief Dequeues an activity from the queue.
+ *
+ * This function removes an activity from the front of the queue.
+ * If the queue is not empty, it prints the dequeued activity and increments the front index.
+ *
+ * @note If the queue is empty, an error message is displayed.
+ */
 void dequeue() {
     if (!isQueueEmpty()) {
         printf("Dequeued activity: %s\n", activityQueue.items[activityQueue.front++]);
@@ -1228,7 +2115,21 @@ void dequeue() {
     }
 }
 
-// Function to add an activity to the sparse matrix
+/**
+ * @brief Adds an activity to the sparse matrix.
+ *
+ * This function adds a new activity to the sparse matrix at the specified row and column.
+ * If the matrix is not full, it stores the activity along with its position in the matrix,
+ * and increments the size of the matrix. The function also pushes the activity onto a stack,
+ * enqueues it in a queue, and adds it to an XOR linked list for tracking purposes.
+ *
+ * @param row The row index where the activity will be stored in the sparse matrix.
+ * @param col The column index where the activity will be stored in the sparse matrix.
+ * @param activity The activity details to be added to the sparse matrix.
+ *
+ * @note The function removes any newline characters from the activity string before storing it.
+ *       If the sparse matrix is full, an error message is displayed.
+ */
 void addActivityToMatrix(int row, int col, char* activity) {
     // Remove the newline character if it exists
     activity[strcspn(activity, "\n")] = 0;
@@ -1250,7 +2151,13 @@ void addActivityToMatrix(int row, int col, char* activity) {
     }
 }
 
-// Function to display the activities in the sparse matrix
+/**
+ * @brief Displays the activities stored in the sparse matrix.
+ *
+ * This function iterates through the sparse matrix and prints out the row,
+ * column, and details of each activity stored. After displaying the activities,
+ * it waits for the user to press Enter to continue.
+ */
 void displayActivities() {
     printf("Activities in Sparse Matrix:\n");
     for (int i = 0; i < activityMatrix.size; i++) {
@@ -1261,6 +2168,13 @@ void displayActivities() {
     getchar();  // Wait for user to press Enter
 }
 
+/**
+ * @brief Plans timelines for activities.
+ *
+ * This function prompts the user to enter timeline details, such as start and end dates.
+ * It reads the input and displays the planned timeline to the user.
+ * After displaying the timeline, it waits for the user to press Enter to continue.
+ */
 void planTimelines() {
     char timeline[100];  // Buffer for input
     printf("Enter the timeline details (e.g., start and end dates): ");
@@ -1270,6 +2184,15 @@ void planTimelines() {
     getchar();  // Wait for user to press Enter
 }
 
+/**
+ * @brief Organizes activities by adding them to a sparse matrix.
+ *
+ * This function prompts the user to enter the row and column indices for an
+ * activity, followed by the activity details. It reads the user input and
+ * adds the activity to the sparse matrix using the `addActivityToMatrix` function.
+ * After successfully adding the activity, it displays a confirmation message
+ * and waits for the user to press Enter to continue.
+ */
 void organizeActivities() {
     char activity[100];  // Buffer for input
     int row, col;
@@ -1288,7 +2211,20 @@ void organizeActivities() {
     printf("Press Enter to continue...\n");
     getchar();  // Wait for user to press Enter
 }
-// Function to display the schedule submenu
+
+/**
+ * @brief Displays the schedule submenu and handles user choices.
+ *
+ * This function presents a menu of options related to scheduling activities.
+ * It allows users to plan timelines, organize activities, display activities,
+ * show activity history, pop an activity from the stack, dequeue an activity,
+ * or return to the main menu. The function runs in a loop until the user decides
+ * to return to the main menu, processing user input and invoking the appropriate
+ * functions based on the user's choice.
+ *
+ * @return Returns false if the user chooses to return to the main menu,
+ *         otherwise true.
+ */
 bool schedule() {
     int choice;
     while (true) {
@@ -1336,8 +2272,18 @@ bool schedule() {
     return true; // Added return statement here
 }
 
-
-// Function to heapify a subtree with root at given index
+/**
+ * @brief Heapifies a subtree rooted at the given index.
+ *
+ * This function ensures that the subtree rooted at index `i` in the array
+ * satisfies the max-heap property. It assumes that the left and right
+ * subtrees are already heapified. If the subtree is not a max-heap, it
+ * will rearrange the elements to maintain the max-heap property.
+ *
+ * @param arr The array representing the heap.
+ * @param n The total number of elements in the array.
+ * @param i The index of the root of the subtree to be heapified.
+ */
 void heapify(int arr[], int n, int i) {
     int largest = i;
     int left = 2 * i + 1;
@@ -1357,7 +2303,17 @@ void heapify(int arr[], int n, int i) {
     }
 }
 
-// Function to perform heap sort
+/**
+ * @brief Performs heap sort on the given array.
+ *
+ * This function sorts an array of integers using the heap sort algorithm.
+ * It first builds a max-heap from the input array and then repeatedly
+ * extracts the maximum element from the heap, placing it at the end of
+ * the sorted portion of the array.
+ *
+ * @param arr The array of integers to be sorted.
+ * @param n The total number of elements in the array.
+ */
 void heapSort(int arr[], int n) {
     for (int i = n / 2 - 1; i >= 0; i--)
         heapify(arr, n, i);
@@ -1369,168 +2325,322 @@ void heapSort(int arr[], int n) {
         heapify(arr, i, 0);
     }
 }
+
+/**
+ * @brief Maximum number of feedback ratings allowed.
+ *
+ * This constant defines the maximum number of feedback ratings that can
+ * be stored in the feedbackRatings array.
+ */
 #define MAX_FEEDBACKS 4
+
+ /**
+  * @brief Maximum number of keys for the B+ tree.
+  *
+  * This constant defines the maximum number of keys that can be stored in
+  * each node of the B+ tree.
+  */
 #define MAX_KEYS 3  // Maximum number of keys for B+ tree
 
+  /**
+   * @brief Array to store feedback ratings.
+   *
+   * This array holds the feedback ratings given by users. It has a fixed
+   * size defined by MAX_FEEDBACKS.
+   */
 int feedbackRatings[MAX_FEEDBACKS];
+
+/**
+ * @brief Current count of feedback ratings.
+ *
+ * This variable tracks the number of feedback ratings currently stored in
+ * the feedbackRatings array.
+ */
 int feedbackCount = 0;
 
-// Global variables required for SCC
-int discoveryTime[MAX_FEEDBACKS], lowLink[MAX_FEEDBACKS];
-bool inStack[MAX_FEEDBACKS];
-int stack[MAX_FEEDBACKS], stackTop = -1, timeCounter = 0;
+// Global variables required for Strongly Connected Components (SCC)
 
-// B+ 
+/**
+ * @brief Discovery time of each node.
+ *
+ * This array keeps track of the discovery times of nodes during the
+ * depth-first search (DFS) for finding strongly connected components.
+ */
+int discoveryTime[MAX_FEEDBACKS];
+
+/**
+ * @brief Lowest link value of each node.
+ *
+ * This array stores the lowest discovery time reachable from each node,
+ * which is used in the SCC algorithm to determine strongly connected
+ * components.
+ */
+int lowLink[MAX_FEEDBACKS];
+
+/**
+ * @brief Stack to keep track of nodes in the current path of DFS.
+ *
+ * This boolean array indicates whether a node is currently in the stack
+ * used for tracking nodes during the DFS.
+ */
+bool inStack[MAX_FEEDBACKS];
+
+/**
+ * @brief Stack for storing the nodes during the DFS process.
+ *
+ * This array is used as a stack to store the nodes visited during the
+ * depth-first search for SCC. The top of the stack is tracked using the
+ * stackTop variable.
+ */
+int stack[MAX_FEEDBACKS];
+
+/**
+ * @brief Top index of the stack.
+ *
+ * This variable tracks the top index of the stack used during the DFS for
+ * strongly connected components.
+ */
+int stackTop = -1;
+
+/**
+ * @brief Counter for the discovery time.
+ *
+ * This variable serves as a counter for assigning discovery times to nodes
+ * during the DFS traversal for finding strongly connected components.
+ */
+int timeCounter = 0;
+
+
+/**
+ * @brief Structure representing a leaf node in a B+ tree.
+ *
+ * A B+ tree leaf node contains keys and a pointer to the next leaf node,
+ * allowing for linked traversal of leaf nodes. It also maintains a count
+ * of the number of keys currently stored in the node.
+ */
 typedef struct BPlusLeafNode {
-    int keys[MAX_KEYS];
-    struct BPlusLeafNode* next;
-    int numKeys;
+    int keys[MAX_KEYS];               /**< Array to store keys in the leaf node. */
+    struct BPlusLeafNode* next;       /**< Pointer to the next leaf node for linked traversal. */
+    int numKeys;                      /**< Number of keys currently stored in the leaf node. */
 } BPlusLeafNode;
 
-// B+ 
+/**
+ * @brief Structure representing an internal node in a B+ tree.
+ *
+ * A B+ tree internal node contains keys and pointers to its children nodes.
+ * It allows for efficient searching and maintaining the B+ tree structure.
+ */
 typedef struct BPlusInternalNode {
-    int keys[MAX_KEYS];
-    void* children[MAX_KEYS + 1];
-    int numKeys;
+    int keys[MAX_KEYS];               /**< Array to store keys in the internal node. */
+    void* children[MAX_KEYS + 1];     /**< Array of pointers to child nodes (internal or leaf). */
+    int numKeys;                      /**< Number of keys currently stored in the internal node. */
 } BPlusInternalNode;
 
-// B+
+/**
+ * @brief Structure representing a B+ tree.
+ *
+ * A B+ tree consists of a root node, which can be an internal or leaf node.
+ * This structure serves as the entry point to the B+ tree and facilitates
+ * operations such as insertion, deletion, and searching.
+ */
 typedef struct BPlusTree {
-    void* root;  // Can be root, internal node or leaf
+    void* root;                       /**< Pointer to the root node of the B+ tree (internal or leaf). */
 } BPlusTree;
 
 
+/**
+ * @brief Creates a new B+ tree.
+ *
+ * Allocates memory for a new B+ tree and initializes it with a root leaf node.
+ *
+ * @return A pointer to the newly created BPlusTree structure.
+ *         The root of the tree is initialized as an empty leaf node.
+ */
 BPlusTree* createBPlusTree() {
     BPlusTree* tree = (BPlusTree*)malloc(sizeof(BPlusTree));
-    //if (tree == NULL) {
-    //    perror("Failed to allocate memory for BPlusTree");
-    //    exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
-    //}
+    // Uncomment the following lines to handle memory allocation failure
+    // if (tree == NULL) {
+    //     perror("Failed to allocate memory for BPlusTree");
+    //     exit(EXIT_FAILURE); // Stop the program if memory allocation fails
+    // }
+
     BPlusLeafNode* rootLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
-    //if (rootLeaf == NULL) {
-    //    perror("Failed to allocate memory for BPlusLeafNode");
-    //    exit(EXIT_FAILURE); // Bellek tahsisi baþarýsýzsa programý durdur
-    //}
-    rootLeaf->numKeys = 0;
-    rootLeaf->next = NULL;
-    tree->root = rootLeaf;
-    return tree;
+    // Uncomment the following lines to handle memory allocation failure
+    // if (rootLeaf == NULL) {
+    //     perror("Failed to allocate memory for BPlusLeafNode");
+    //     exit(EXIT_FAILURE); // Stop the program if memory allocation fails
+    // }
+
+    rootLeaf->numKeys = 0;  // Initialize the number of keys to 0
+    rootLeaf->next = NULL;   // Set the next pointer to NULL
+    tree->root = rootLeaf;   // Set the root of the tree to the new leaf node
+    return tree;             // Return the newly created BPlusTree
 }
 
-
-// Add a key to a leaf node
+/**
+ * @brief Inserts a key into a leaf node of the B+ tree.
+ *
+ * If the leaf node has space for the new key, it inserts it in sorted order.
+ * If the leaf node is full, it splits the node, creating a new leaf node
+ * and redistributing the keys accordingly.
+ *
+ * @param leaf A pointer to the leaf node where the key will be inserted.
+ * @param key The key to be inserted into the leaf node.
+ */
 void insertIntoLeaf(BPlusLeafNode* leaf, int key) {
     if (leaf->numKeys < MAX_KEYS) {
+        // Insert key in sorted order
         int i = leaf->numKeys - 1;
         while (i >= 0 && leaf->keys[i] > key) {
-            leaf->keys[i + 1] = leaf->keys[i];
+            leaf->keys[i + 1] = leaf->keys[i]; // Shift keys to the right
             i--;
         }
-        leaf->keys[i + 1] = key;
-        leaf->numKeys++;
+        leaf->keys[i + 1] = key; // Insert the new key
+        leaf->numKeys++;         // Increment the number of keys
     }
     else {
-        // Detach a leaf node
+        // Leaf node is full, split the node
         BPlusLeafNode* newLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
-        newLeaf->numKeys = 0;
-        newLeaf->next = leaf->next;
-        leaf->next = newLeaf;
+        newLeaf->numKeys = 0;        // Initialize new leaf node
+        newLeaf->next = leaf->next;  // Link new leaf to the next node
+        leaf->next = newLeaf;        // Update current leaf's next pointer
 
-        int mid = MAX_KEYS / 2;
-        newLeaf->numKeys = MAX_KEYS - mid;
+        int mid = MAX_KEYS / 2;      // Calculate midpoint for splitting
+        newLeaf->numKeys = MAX_KEYS - mid; // Assign keys to the new leaf
         for (int i = 0; i < newLeaf->numKeys; i++) {
             newLeaf->keys[i] = leaf->keys[mid + i];
         }
-        leaf->numKeys = mid;
+        leaf->numKeys = mid;         // Update the current leaf's key count
 
-        // Adding a new key
+        // Add the new key to the appropriate leaf
         if (key > newLeaf->keys[0]) {
-            insertIntoLeaf(newLeaf, key);
+            insertIntoLeaf(newLeaf, key); // Insert in the new leaf
         }
         else {
-            insertIntoLeaf(leaf, key);
+            insertIntoLeaf(leaf, key);     // Insert in the current leaf
         }
     }
 }
 
-// Add key to B + tree
+/**
+ * @brief Inserts a key into the B+ tree.
+ *
+ * If the root leaf node has space for the new key, it inserts it into the leaf node.
+ * If the root is full, it creates a new root node, splits the existing root,
+ * and promotes the median key to the new root.
+ *
+ * @param tree A pointer to the BPlusTree structure where the key will be inserted.
+ * @param key The key to be inserted into the B+ tree.
+ */
 void insert(BPlusTree* tree, int key) {
     BPlusLeafNode* root = (BPlusLeafNode*)tree->root;
     if (root->numKeys < MAX_KEYS) {
+        // Insert key directly into the root leaf node
         insertIntoLeaf(root, key);
     }
     else {
-        //Creating new roots and separating leaves
+        // Root is full, create a new root and split the existing root
         BPlusInternalNode* newRoot = (BPlusInternalNode*)malloc(sizeof(BPlusInternalNode));
-        newRoot->numKeys = 1;
-        newRoot->keys[0] = root->keys[MAX_KEYS / 2];
-        newRoot->children[0] = root;
+        newRoot->numKeys = 1;                             // Set number of keys in new root
+        newRoot->keys[0] = root->keys[MAX_KEYS / 2];     // Promote median key to new root
+        newRoot->children[0] = root;                      // Link old root to new root
         BPlusLeafNode* newLeaf = (BPlusLeafNode*)malloc(sizeof(BPlusLeafNode));
-        newLeaf->numKeys = 0;
-        newLeaf->next = NULL;
-        newRoot->children[1] = newLeaf;
+        newLeaf->numKeys = 0;                             // Initialize new leaf node
+        newLeaf->next = NULL;                             // Set next pointer to NULL
+        newRoot->children[1] = newLeaf;                   // Link new leaf to new root
 
-        tree->root = newRoot;
-        insertIntoLeaf(newLeaf, key);
+        tree->root = newRoot;                             // Update the tree's root
+        insertIntoLeaf(newLeaf, key);                     // Insert key into the new leaf
     }
 }
 
-// Helper functions for SCC
+/**
+ * @brief Pushes a node onto the SCC stack.
+ *
+ * Marks the node as being in the stack and pushes it onto the stack.
+ *
+ * @param node The node to be pushed onto the stack.
+ */
 void pushStackSCC(int node) {
-    stack[++stackTop] = node;
-    inStack[node] = true;
+    stack[++stackTop] = node;   // Push the node onto the stack
+    inStack[node] = true;       // Mark the node as in the stack
 }
 
+/**
+ * @brief Pops a node from the SCC stack.
+ *
+ * Removes the top node from the stack and marks it as not in the stack.
+ *
+ * @return The node that was popped from the stack.
+ */
 int popStackSCC() {
-    int node = stack[stackTop--];
-    inStack[node] = false;
-    return node;
+    int node = stack[stackTop--]; // Pop the top node from the stack
+    inStack[node] = false;        // Mark the node as not in the stack
+    return node;                  // Return the popped node
 }
 
-// SCC (Tarjan's Algorithm)
+/**
+ * @brief Finds strongly connected components (SCC) in a directed graph.
+ *
+ * This function implements Tarjan's algorithm to find all strongly connected components
+ * in a directed graph represented by an adjacency matrix. It uses depth-first search (DFS)
+ * to explore the graph and maintains discovery and low-link values for each node.
+ *
+ * @param node The current node being visited in the graph.
+ * @param adjMatrix The adjacency matrix representing the graph.
+ * @param n The number of nodes in the graph.
+ */
 void SCC(int node, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    discoveryTime[node] = lowLink[node] = ++timeCounter;
-    pushStackSCC(node);
+    discoveryTime[node] = lowLink[node] = ++timeCounter;  // Initialize discovery and low-link values
+    pushStackSCC(node);                                   // Push the node onto the stack
 
-    for (int i = 0; i < n; i++) {
-        if (adjMatrix[node][i]) {
-            if (discoveryTime[i] == -1) {
-                SCC(i, adjMatrix, n);
-                lowLink[node] = (lowLink[node] < lowLink[i]) ? lowLink[node] : lowLink[i];
+    for (int i = 0; i < n; i++) {                        // Explore all adjacent nodes
+        if (adjMatrix[node][i]) {                        // Check if there is an edge from node to i
+            if (discoveryTime[i] == -1) {               // If the node has not been visited
+                SCC(i, adjMatrix, n);                   // Recursively visit the node
+                lowLink[node] = (lowLink[node] < lowLink[i]) ? lowLink[node] : lowLink[i]; // Update low-link value
             }
-            else if (inStack[i]) {
-                lowLink[node] = (lowLink[node] < discoveryTime[i]) ? lowLink[node] : discoveryTime[i];
+            else if (inStack[i]) {                       // If the node is in the stack
+                lowLink[node] = (lowLink[node] < discoveryTime[i]) ? lowLink[node] : discoveryTime[i]; // Update low-link value
             }
         }
     }
 
-    if (lowLink[node] == discoveryTime[node]) {
+    if (lowLink[node] == discoveryTime[node]) {          // If the node is a root of an SCC
         printf("SCC Found: ");
         int w;
         do {
-            w = popStackSCC();
+            w = popStackSCC();                           // Pop nodes from the stack until reaching the root
             printf("Feedback %d (Rating: %d) ", w + 1, feedbackRatings[w]);
-        } while (w != node);
+        } while (w != node);                             // Continue until the root node is reached
         printf("\n");
     }
 }
 
-//Feedback collection function
+/**
+ * @brief Gathers feedback and ratings from the user.
+ *
+ * This function prompts the user to enter their feedback for the application
+ * and a rating between 1 and 5. It stores the feedback rating in an array and
+ * inserts the rating into a B+ tree for further processing.
+ *
+ * @param tree A pointer to the BPlusTree where the feedback rating will be inserted.
+ */
 void gatherFeedbacks(BPlusTree* tree) {
     char feedback[256];
     int rating;
 
     printf("Enter your feedback (max 255 characters): ");
-    fgets(feedback, sizeof(feedback), stdin);
-    feedback[strcspn(feedback, "\n")] = 0;
+    fgets(feedback, sizeof(feedback), stdin);             // Get feedback from user
+    feedback[strcspn(feedback, "\n")] = 0;                // Remove trailing newline
 
     printf("Rate the application (1 to 5): ");
-    scanf("%d", &rating);
-    getchar();
+    scanf("%d", &rating);                                  // Get rating from user
+    getchar();                                             // Clear the input buffer
 
-    if (rating >= 1 && rating <= 5) {
-        feedbackRatings[feedbackCount++] = rating;
-        insert(tree, rating);
+    if (rating >= 1 && rating <= 5) {                     // Validate rating
+        feedbackRatings[feedbackCount++] = rating;        // Store the rating
+        insert(tree, rating);                              // Insert rating into B+ tree
         printf("Feedback received: %s\n", feedback);
         printf("Rating received: %d\n", rating);
     }
@@ -1539,23 +2649,30 @@ void gatherFeedbacks(BPlusTree* tree) {
     }
 
     printf("Press Enter to continue...\n");
-    getchar();
+    getchar();                                             // Wait for user input
 }
 
-// Degree sorting function
+
+/**
+ * @brief Displays the feedback ratings in sorted order.
+ *
+ * This function checks if there are any feedback ratings available. If ratings exist,
+ * it creates a copy of the ratings, sorts them using bubble sort, and displays the
+ * sorted ratings to the user.
+ */
 void displaySortedRatings() {
-    if (feedbackCount == 0) {
+    if (feedbackCount == 0) {                              // Check if there are no ratings
         printf("No ratings available.\n");
         return;
     }
 
     int sortedRatings[MAX_FEEDBACKS];
-    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int)); // Copy degrees
+    memcpy(sortedRatings, feedbackRatings, feedbackCount * sizeof(int)); // Copy ratings
 
-    // Bubble sort
+    // Bubble sort for sorting ratings
     for (int i = 0; i < feedbackCount - 1; i++) {
         for (int j = 0; j < feedbackCount - i - 1; j++) {
-            if (sortedRatings[j] > sortedRatings[j + 1]) {
+            if (sortedRatings[j] > sortedRatings[j + 1]) { // Compare and swap
                 int temp = sortedRatings[j];
                 sortedRatings[j] = sortedRatings[j + 1];
                 sortedRatings[j + 1] = temp;
@@ -1565,64 +2682,103 @@ void displaySortedRatings() {
 
     printf("Sorted Ratings:\n");
     for (int i = 0; i < feedbackCount; i++) {
-        printf("%d ", sortedRatings[i]);
+        printf("%d ", sortedRatings[i]);                    // Display sorted ratings
     }
     printf("\nPress Enter to return to Feedback Menu...\n");
-    getchar();
+    getchar();                                             // Wait for user input
 }
 
-// BFS function
+/**
+ * @brief Performs breadth-first search (BFS) traversal from a given starting node.
+ *
+ * This function implements the BFS algorithm on a graph represented by an
+ * adjacency matrix. It starts the traversal from the specified starting node,
+ * visits all reachable nodes, and displays the ratings of the visited feedbacks.
+ *
+ * @param startNode The starting node for the BFS traversal.
+ * @param adjMatrix The adjacency matrix representing the graph.
+ * @param n The number of nodes in the graph.
+ */
 void BFS(int startNode, int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    int queue[MAX_FEEDBACKS], front = 0, rear = 0;
-    int visited[MAX_FEEDBACKS] = { 0 };
+    int queue[MAX_FEEDBACKS], front = 0, rear = 0;          // Queue for BFS
+    int visited[MAX_FEEDBACKS] = { 0 };                     // Array to track visited nodes
 
-    queue[rear++] = startNode;
+    queue[rear++] = startNode;                              // Enqueue the starting node
     visited[startNode] = 1;
 
     printf("BFS Traversal starting from Feedback %d:\n", startNode + 1);
-    while (front < rear) {
+    while (front < rear) {                                  // Process the queue
         int node = queue[front++];
         printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
 
-        for (int i = 0; i < n; i++) {
-            if (adjMatrix[node][i] && !visited[i]) {
-                queue[rear++] = i;
+        for (int i = 0; i < n; i++) {                       // Explore adjacent nodes
+            if (adjMatrix[node][i] && !visited[i]) {      // Check for edges and visited status
+                queue[rear++] = i;                          // Enqueue unvisited adjacent node
                 visited[i] = 1;
             }
         }
     }
 }
-
-// DFS function
+/**
+ * @brief Performs depth-first search (DFS) traversal from a given node.
+ *
+ * This function implements the DFS algorithm on a graph represented by an
+ * adjacency matrix. It starts the traversal from the specified node, marks
+ * it as visited, and recursively visits all reachable nodes, displaying the
+ * ratings of the visited feedbacks.
+ *
+ * @param node The current node to visit in the DFS traversal.
+ * @param visited An array that keeps track of visited nodes.
+ * @param adjMatrix The adjacency matrix representing the graph.
+ * @param n The number of nodes in the graph.
+ */
 void DFS(int node, int visited[MAX_FEEDBACKS], int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS], int n) {
-    visited[node] = 1;
+    visited[node] = 1;                                      // Mark the current node as visited
     printf("Visited Feedback %d with Rating %d\n", node + 1, feedbackRatings[node]);
 
-    for (int i = 0; i < n; i++) {
-        if (adjMatrix[node][i] && !visited[i]) {
-            DFS(i, visited, adjMatrix, n);
+    for (int i = 0; i < n; i++) {                           // Explore adjacent nodes
+        if (adjMatrix[node][i] && !visited[i]) {          // Check for edges and visited status
+            DFS(i, visited, adjMatrix, n);                 // Recursive DFS call
         }
     }
 }
 
-// Print leaf nodes and their contents in a B+ tree
+/**
+ * @brief Prints the contents of the leaf nodes in a B+ tree.
+ *
+ * This function traverses the leaf nodes of the B+ tree starting from the root
+ * and prints the keys stored in each leaf node. It continues until it reaches
+ * the end of the leaf nodes, displaying all keys in the tree.
+ *
+ * @param tree A pointer to the B+ tree from which to print the leaf nodes.
+ */
 void printLeafNodes(BPlusTree* tree) {
-    BPlusLeafNode* current = (BPlusLeafNode*)tree->root;
-    while (current != NULL) {
+    BPlusLeafNode* current = (BPlusLeafNode*)tree->root;  // Start from the root leaf node
+    while (current != NULL) {                               // Traverse through all leaf nodes
         printf("Leaf Node: ");
-        for (int i = 0; i < current->numKeys; i++) {
+        for (int i = 0; i < current->numKeys; i++) {      // Print keys in the current leaf node
             printf("%d ", current->keys[i]);
         }
         printf("\n");
-        current = current->next;
+        current = current->next;                            // Move to the next leaf node
     }
 }
 
-// Feedback
+/**
+ * @brief Displays the feedback menu and handles user interactions.
+ *
+ * This function manages the feedback process, allowing users to gather feedback,
+ * view sorted ratings, and perform operations such as BFS, DFS, and finding
+ * strongly connected components (SCC) using Tarjan's algorithm. It repeatedly
+ * presents a menu to the user until they choose to return to the main menu.
+ *
+ * @return Returns false if the user opts to return to the main menu, true otherwise.
+ */
 bool feedback() {
-    BPlusTree* tree = createBPlusTree();
+    BPlusTree* tree = createBPlusTree();  // Create a new B+ tree for storing feedback ratings
     int choice;
     while (1) {
+        // Display the feedback menu
         printf("\n----------- Feedback Menu -----------\n");
         printf("1. Gather Feedback\n");
         printf("2. View Sorted Ratings\n");
@@ -1633,24 +2789,24 @@ bool feedback() {
         printf("7. Return to Main Menu\n");
         printf("Please enter your choice: ");
 
-        scanf("%d", &choice);
-        getchar();
+        scanf("%d", &choice);                // Get user's choice
+        getchar();                           // Clear the newline character
 
         switch (choice) {
         case 1:
-            gatherFeedbacks(tree);
+            gatherFeedbacks(tree);           // Call function to gather feedback
             break;
         case 2:
-            displaySortedRatings();
+            displaySortedRatings();          // Call function to display sorted ratings
             break;
         case 3:
             printf("Feedbacks stored in B+ Tree:\n");
-            printLeafNodes(tree);
+            printLeafNodes(tree);            // Call function to print leaf nodes of the B+ tree
             break;
-        case 4: {
+        case 4: {                            // Perform BFS
             int startNode;
             printf("Enter starting feedback number for BFS (1 to %d): ", feedbackCount);
-            scanf("%d", &startNode);
+            scanf("%d", &startNode);         // Get starting node for BFS
             getchar();
 
             if (startNode < 1 || startNode > feedbackCount) {
@@ -1659,16 +2815,16 @@ bool feedback() {
             }
             startNode--;
 
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Adjacency matrix initialization
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Sample edges for testing
             adjMatrix[1][2] = adjMatrix[2][1] = 1;
 
-            BFS(startNode, adjMatrix, feedbackCount);
+            BFS(startNode, adjMatrix, feedbackCount); // Call BFS function
         } break;
-        case 5: {
+        case 5: {                            // Perform DFS
             int startNode;
             printf("Enter starting feedback number for DFS (1 to %d): ", feedbackCount);
-            scanf("%d", &startNode);
+            scanf("%d", &startNode);         // Get starting node for DFS
             getchar();
 
             if (startNode < 1 || startNode > feedbackCount) {
@@ -1677,37 +2833,37 @@ bool feedback() {
             }
             startNode--;
 
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Adjacency matrix initialization
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Sample edges for testing
             adjMatrix[1][2] = adjMatrix[2][1] = 1;
 
-            int visited[MAX_FEEDBACKS] = { 0 };
-            DFS(startNode, visited, adjMatrix, feedbackCount);
+            int visited[MAX_FEEDBACKS] = { 0 };   // Visited array for DFS
+            DFS(startNode, visited, adjMatrix, feedbackCount); // Call DFS function
         } break;
-        case 6: {
-            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 };
-            adjMatrix[0][1] = adjMatrix[1][0] = 1;
+        case 6: {                            // Find SCC
+            int adjMatrix[MAX_FEEDBACKS][MAX_FEEDBACKS] = { 0 }; // Adjacency matrix initialization
+            adjMatrix[0][1] = adjMatrix[1][0] = 1;  // Sample edges for testing
             adjMatrix[1][2] = adjMatrix[2][1] = 1;
 
-            memset(discoveryTime, -1, sizeof(discoveryTime));
-            memset(lowLink, -1, sizeof(lowLink));
-            memset(inStack, false, sizeof(inStack));
-            stackTop = -1;
-            timeCounter = 0;
+            memset(discoveryTime, -1, sizeof(discoveryTime)); // Reset discovery times
+            memset(lowLink, -1, sizeof(lowLink));             // Reset low link values
+            memset(inStack, false, sizeof(inStack));         // Reset stack status
+            stackTop = -1;                                    // Initialize stack top
+            timeCounter = 0;                                  // Initialize time counter
 
             printf("Finding SCCs:\n");
             for (int i = 0; i < feedbackCount; i++) {
-                if (discoveryTime[i] == -1) {
-                    SCC(i, adjMatrix, feedbackCount);
+                if (discoveryTime[i] == -1) {                // If node is unvisited
+                    SCC(i, adjMatrix, feedbackCount);        // Call SCC function
                 }
             }
         } break;
         case 7:
-            return false;
+            return false; // Return to main menu
         default:
-            printf("Invalid choice. Try again.\n");
+            printf("Invalid choice. Try again.\n"); // Handle invalid choice
         }
-        return 0;
+        return 0; // This should be outside the while loop for continuous menu display
     }
-    return true;
+    return true; // Default return value
 }

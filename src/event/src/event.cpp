@@ -739,7 +739,7 @@ void linearProbing() {
     printf("Executing Linear Probing algorithm...\n");
     int hashTable[10];
     for (int i = 0; i < 10; i++) {
-        hashTable[i] = -1; // Baþlangýçta tüm deðerler boþ (-1)
+        hashTable[i] = -1; 
     }
 
     int keys[] = { 23, 45, 12, 37, 29 };
@@ -748,12 +748,12 @@ void linearProbing() {
     for (int i = 0; i < size; i++) {
         int index = keys[i] % 10;
         int startIndex = index;
-        bool placed = false; // Anahtarýn yerleþtirilip yerleþtirilmediðini takip eder
+        bool placed = false; 
 
         do {
             if (hashTable[index] == -1) {
                 hashTable[index] = keys[i];
-                placed = true; // Anahtar yerleþtirildi
+                placed = true;,
                 break;
             }
             index = (index + 1) % 10;
@@ -764,7 +764,6 @@ void linearProbing() {
         }
     }
 
-    // Hash tablosunun çýktýsýný yazdýr
     for (int i = 0; i < 10; i++) {
         if (hashTable[i] != -1) {
             printf("Index %d: %d\n", i, hashTable[i]);

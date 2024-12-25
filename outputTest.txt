@@ -1,8 +1,8 @@
-Enter your phone number: Enter your password: [       OK ] EventAppTest.LogInTest (21 ms)
-[----------] 113 tests from EventAppTest (980 ms total)
+Enter your phone number: Enter your password: [       OK ] EventAppTest.LogInTest (35 ms)
+[----------] 113 tests from EventAppTest (1204 ms total)
 
 [----------] Global test environment tear-down
-[==========] 113 tests from 1 test suite ran. (982 ms total)
+[==========] 113 tests from 1 test suite ran. (1205 ms total)
 [  PASSED  ] 95 tests.
 [  FAILED  ] 18 tests, listed below:
 [  FAILED  ] EventAppTest.ExtractMinTest

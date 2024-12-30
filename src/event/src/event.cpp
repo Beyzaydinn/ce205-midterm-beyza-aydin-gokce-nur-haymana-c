@@ -9,16 +9,30 @@
 #include <stdint.h>
 #include <ctype.h>
 
-
 /**
- * @brief Clears the console screen.
+ * @brief Clears the console screen for better user interface experience.
  *
- * This function clears the console screen using system-specific commands.
- * It supports both Windows and Linux platforms.
+ * This function is used to clear the console screen, ensuring a clean
+ * and organized output environment during program execution. It employs
+ * platform-specific system commands to achieve this functionality.
  *
- * @note On Windows, it uses the "cls" command.
- *       On Linux and WSL, it uses the "clear" command.
+ * ## Platform-Specific Behavior:
+ * - **Windows**: Executes the `cls` command via the `system()` function
+ *   to clear the console.
+ * - **Linux and WSL (Windows Subsystem for Linux)**: Executes the `clear`
+ *   command via the `system()` function to achieve the same result.
+ *
+ * @warning The use of the `system()` function may pose security risks
+ *          if untrusted input is passed to it. However, this implementation
+ *          is safe as it uses fixed commands.
+ *
+ * @note This function is particularly useful in applications where dynamic
+ *       console output is required, such as menu-driven programs or real-time
+ *       updates.
+ *
+ * @see system() for more details about executing system-specific commands.
  */
+
 void clear_screen() {
 #if defined(_WIN32) || defined(_WIN64)
     system("cls");  // for Windows
@@ -356,14 +370,35 @@ void saveUser(User* newUser) {
 }
 
 /**
- * @brief Saves the hash table of users to a binary file.
+ * @brief Saves the hash table containing user data to a binary file for persistent storage.
  *
- * This function iterates through each index of the hash table and writes
- * each user record to a binary file named "users.bin". It handles collisions
- * by traversing the linked list of users at each index.
+ * This function serializes the hash table structure by iterating through each index
+ * and writing the user records stored in it to a binary file named `"users.bin"`.
+ * If a collision has occurred at a particular index, the function traverses the linked list
+ * at that index to ensure all user records are saved.
  *
- * Note: Error checking for file opening is commented out. Uncomment the error
- * handling code if needed.
+ * ## Implementation Details:
+ * - A binary file is used to store the data for compactness and efficiency.
+ * - Each user record is written sequentially using the `fwrite()` function.
+ * - Collisions in the hash table are resolved by iterating through the linked list
+ *   at each index, ensuring no data is missed.
+ *
+ * ## Usage Notes:
+ * - The function currently does not include active error checking for file operations.
+ *   Uncomment the provided error handling block for production-grade reliability.
+ *   This will ensure issues such as failure to open the file are properly reported.
+ * - The structure of the `User` object must remain consistent between the program
+ *   execution and when the data is loaded back from the file.
+ *
+ * ## Security Warning:
+ * - Ensure the binary file is stored securely to prevent unauthorized access to user data.
+ * - The function uses raw binary operations, so care should be taken when modifying
+ *   the structure of the `User` object.
+ *
+ * @note This function is part of a larger system that handles hash table-based user
+ *       management, enabling features such as persistent data storage and recovery.
+ *
+ * @see fopen(), fwrite(), fclose()
  */
 void saveHashTableToFile() {
     FILE* file = fopen("users.bin", "wb");
@@ -507,16 +542,45 @@ void printHashTable() {
 }
 
 /**
- * @brief Builds a Huffman tree based on the frequency of characters in a string.
+ * @brief Constructs a Huffman tree and generates Huffman codes for characters in a given string.
  *
- * This function takes a string and an attendee structure as input, calculates
- * the frequency of each character in the string, and constructs a Huffman tree
- * using a min-heap. It then generates Huffman codes for each character and
- * stores the generated code in the attendee structure.
+ * This function performs the following steps to create a Huffman tree and generate Huffman codes:
+ * 1. Calculates the frequency of each character in the input string.
+ * 2. Builds a min-heap (priority queue) where each node represents a character and its frequency.
+ * 3. Iteratively merges the two nodes with the smallest frequencies to form the Huffman tree.
+ * 4. Traverses the Huffman tree to generate unique binary codes for each character, which are
+ *    stored in the provided `AttendeE` structure.
  *
- * @param str The input string for which the Huffman tree will be built.
- * @param attendee A pointer to an AttendeE structure where the Huffman code
- *                 will be stored.
+ * ## Parameters:
+ * - `str` (char*): The input string for which the Huffman tree is to be built. Each character in
+ *   this string is considered for frequency calculation and encoding.
+ * - `attendee` (AttendeE*): A pointer to an `AttendeE` structure where the generated Huffman codes
+ *   for each character will be stored. The structure is expected to have a `huffmanCode` field for storage.
+ *
+ * ## Implementation Details:
+ * - A frequency array (`freq`) is used to calculate how often each character appears in the string.
+ * - A min-heap is constructed to manage nodes efficiently based on their frequency. Nodes with lower
+ *   frequencies have higher priority.
+ * - The tree is constructed by repeatedly extracting the two smallest nodes from the heap, combining them
+ *   into a new node, and reinserting the new node into the heap.
+ * - The final node in the heap represents the root of the Huffman tree.
+ * - The `generateHuffmanCodes` function recursively traverses the tree to create unique binary codes
+ *   for each character.
+ *
+ * ## Usage Notes:
+ * - Ensure the input string is null-terminated to avoid buffer overflows during frequency calculation.
+ * - The function assumes that `AttendeE` is properly initialized and capable of storing the resulting
+ *   Huffman codes.
+ * - Memory management for the min-heap and tree nodes should be handled appropriately to prevent leaks.
+ *
+ * ## Advantages of Huffman Encoding:
+ * - Reduces the average length of encoded strings, especially for strings with skewed character frequencies.
+ * - Commonly used in data compression algorithms, such as JPEG and MP3.
+ *
+ * @warning If the input string contains characters with very high frequencies, the min-heap may grow
+ *          large, increasing memory usage and computation time.
+ *
+ * @see generateHuffmanCodes(), createMinHeap(), insertMinHeap(), extractMin()
  */
 void buildHuffmanTree(char* str, AttendeE* attendee) {
     // Frequency array
@@ -637,19 +701,56 @@ void progressiveOverflowAlgorithm() {
     }
 }
 /**
- * @brief Displays the main menu and handles user choices.
+ * @brief Displays the main menu and manages user interactions by executing corresponding features.
  *
- * This function presents a menu with options for user authentication,
- * event details management, attendee management, schedule organization,
- * and feedback collection. It prompts the user to enter their choice
- * and executes the corresponding function based on the input.
+ * This function serves as the central hub for the program, presenting users with a menu
+ * of available features and allowing them to interact with the system. It handles user
+ * input, validates it, and invokes the appropriate functions based on the user's selection.
  *
- * The menu continues to display until the user chooses to exit by
- * selecting the exit option. Input is validated, and any invalid
- * choices prompt the user to try again.
+ * ## Menu Options:
+ * - **User Authentication**: Allows users to log in or register.
+ * - **Event Details**: Provides options to manage event-related information, such as creating,
+ *   editing, or viewing event details.
+ * - **Attendee Management**: Enables the management of attendee records, including adding,
+ *   updating, or removing attendees.
+ * - **Schedule Organizer**: Helps users organize and manage event schedules efficiently.
+ * - **Feedback Collection**: Facilitates the collection and management of user feedback.
+ * - **Exit**: Terminates the program gracefully when the user chooses to exit.
  *
- * @return Returns false if the user chooses to exit; otherwise, returns true.
+ * ## Function Flow:
+ * - The menu is displayed in a loop to allow continuous interaction until the user selects
+ *   the exit option.
+ * - Input is taken from the user and validated to ensure that it corresponds to one of the
+ *   menu options.
+ * - Based on the user's input, the corresponding function is invoked to handle the selected task.
+ * - Invalid input is handled gracefully with a prompt to retry.
+ *
+ * ## Implementation Details:
+ * - The menu uses `printf` for displaying options and `scanf` for input, ensuring compatibility
+ *   with console-based systems.
+ * - A `switch` statement is used for efficient selection of the appropriate functionality.
+ * - The function returns `false` if the user chooses to exit the menu; otherwise, it loops back
+ *   to display the menu again.
+ *
+ * ## Usage Notes:
+ * - Ensure all sub-functions (e.g., `authentication`, `eventDetails`, etc.) are implemented and
+ *   properly integrated with the main menu.
+ * - This function is designed for console-based applications; GUI implementations would require
+ *   a different approach.
+ * - Input validation prevents crashes due to invalid data, but further improvements (e.g.,
+ *   sanitizing inputs) may enhance robustness.
+ *
+ * ## Limitations:
+ * - The current implementation uses numeric options; extending it to support descriptive input
+ *   (e.g., keywords) may improve user experience.
+ * - It relies on a linear flow, which may not scale well for applications with highly complex menus.
+ *
+ * @return Returns `false` if the user selects the exit option (6); otherwise, it returns `true`
+ *         to indicate that the menu should continue displaying.
+ *
+ * @see authentication(), eventDetails(), attendee(), schedule(), feedback()
  */
+
 bool mainMenu() {
     int choice;
     do {
@@ -667,24 +768,24 @@ bool mainMenu() {
 
         switch (choice) {
         case 1:
-            authentication();
+            authentication(); // you are in authentication menu
             break;
         case 2:
-            eventDetails();
+            eventDetails(); // you are in event details menu 
             break;
         case 3:
-            attendee();
+            attendee(); // you are in attendee menu
             break;
         case 4:
-            schedule();
+            schedule(); // you are in schedule organizer menu
             break;
         case 5:
-            feedback();
+            feedback(); // you are in feedback collection menu
             break;
         case 6:
-            return false;
+            return false; // return main menu
         default:
-            printf("Invalid choice. Please try again.\n");
+            printf("Invalid choice. Please try again.\n"); // if you made a invalid choice
             return false;
         }
     } while (choice != 6);
@@ -753,7 +854,7 @@ void linearProbing() {
         do {
             if (hashTable[index] == -1) {
                 hashTable[index] = keys[i];
-                placed = true;,
+                placed = true;
                 break;
             }
             index = (index + 1) % 10;
@@ -1101,29 +1202,29 @@ bool authentication() {
 
     switch (login) {
     case 1:
-        Register();
+        Register(); // You should register for app
         break;
     case 2:
         if (logIn()) {
             clear_screen();
-            printf("Login successful!\n");
+            printf("Login successful!\n"); // If password is true
         }
         else {
             clear_screen();
-            printf("Invalid login. Returning to main menu.\n");
+            printf("Invalid login. Returning to main menu.\n"); // If password is false 
         }
         break;
     case 3:
-        guest();
+        guest(); // You are in guest mode 
         break;
     case 4:
-        fileOperationsMenu();
+        fileOperationsMenu(); // You are in file operations algorithms
         break;
     case 5:
-        return false;
+        return false; // Return main menu
     default:
         clear_screen();
-        printf("Invalid choice. Please try again.\n");
+        printf("Invalid choice. Please try again.\n"); // If you are made an invalid choice
         break;
     }
     return true;
@@ -1307,6 +1408,7 @@ bool manageEvent() {
 
         switch (choice) {
         case 1:
+            // if you want to go to next event
             if (current->next != NULL) {
                 current = current->next;
             }
@@ -1316,6 +1418,7 @@ bool manageEvent() {
             clear_screen();
             break;
         case 2:
+            // if you want to go to previous event
             if (current->prev != NULL) {
                 current = current->prev;
             }
@@ -1325,6 +1428,7 @@ bool manageEvent() {
             clear_screen();
             break;
         case 3:
+            // if you want to update event information
             printf("Enter new type: ");
             scanf(" %[^\n]%*c", current->type);
 
@@ -1343,7 +1447,7 @@ bool manageEvent() {
         case 4:
             return false; // Ensure mainMenu() returns bool if needed
         default:
-            printf("Invalid choice. Please try again.\n");
+            printf("Invalid choice. Please try again.\n");// if you made an invalid choice
             break;
         }
     }
@@ -1373,13 +1477,13 @@ bool eventDetails() {
 
     switch (event) {
     case 1:
-        createEvent();
+        createEvent(); // create event function called
         break;
     case 2:
-        manageEvent();
+        manageEvent(); // manage event function called
         break;
     case 3:
-        return false;
+        return false; // return main menu
     default:
         clear_screen();
         printf("Invalid choice. Please try again.\n");
@@ -1632,7 +1736,7 @@ void compressAttendeeName(Attendee* attendee) {
  */
 bool registerAttendees() {
     int count;
-    FILE* file = fopen("attendee.bin", "ab"); // Binary modunda aç (ekleme için)
+    FILE* file = fopen("attendee.bin", "ab");
     /* if (file == NULL) {
          perror("Error opening file");
          return false;
@@ -1652,20 +1756,19 @@ bool registerAttendees() {
         scanf("%s", attendees[attendeeCount].nameAttendee);
         printf("Enter the surname of attendee %d: ", i + 1);
         scanf("%s", attendees[attendeeCount].surnameAttendee);
-        compressAttendeeName(&attendees[attendeeCount]); // Huffman kodunu sýkýþtýr ve sakla
+        compressAttendeeName(&attendees[attendeeCount]); 
 
-        // Katýlýmcý bilgilerini binary dosyasýna yaz
         if (fwrite(&attendees[attendeeCount], sizeof(Attendee), 1, file) != 1) {
             /*   perror("Error writing to file");
                fclose(file);*/
             return false;
         }
 
-        attendeeCount++; // Kayýt sayýsýný artýr
+        attendeeCount++;
     }
 
     printf("%d attendees registered and saved in binary format.\n", count);
-    fclose(file); // Dosyayý kapat
+    fclose(file); 
     return true;
 }
 

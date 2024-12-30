@@ -1305,20 +1305,20 @@ TEST_F(EventAppTest, ValidChoiceTest) {
 
     resetStdinStdout();
     if (feedbackCount != 4) {
-        printf("Hata: Beklenen geri bildirim sayýsý 4 olmalý, ancak %d alýndý.\n", feedbackCount);
+        printf("Error: Expected feedback count should have been 4, but was %d.\n", feedbackCount);
     }
 
     if (feedbackRatings[0] != 1) {
-        printf("Hata: Ýlk iþlemde beklenen geri bildirim 1, ancak %d alýndý.\n", feedbackRatings[0]);
+        printf("Error: Expected feedback 1 on initial transaction, but % d was received.\n", feedbackRatings[0]);
     }
     if (feedbackRatings[1] != 4) {
-        printf("Hata: Ýkinci iþlemde beklenen geri bildirim 4, ancak %d alýndý.\n", feedbackRatings[1]);
+        printf(" Error: Expected feedback 4 on second commit, but received % d.\n", feedbackRatings[1]);
     }
     if (feedbackRatings[2] != 7) {
-        printf("Hata: Üçüncü iþlemde beklenen geri bildirim 7, ancak %d alýndý.\n", feedbackRatings[2]);
+        printf(" Error: Expected feedback 7 on third commit, but received % d.\n", feedbackRatings[2]);
     }
     if (feedbackRatings[3] != 8) {
-        printf("Hata: Dördüncü iþlemde beklenen geri bildirim 8, ancak %d alýndý.\n", feedbackRatings[3]);
+        printf("  Error: Expected feedback 8 on fourth transaction, but received % d.\n", feedbackRatings[3]);
     }
 }
 
@@ -1330,10 +1330,10 @@ TEST_F(EventAppTest, ExitTest) {
     resetStdinStdout();
 
     if (feedbackCount != 1) {
-        printf("Hata: Çýkýþ yapmadan önce 1 iþlem yapýlmalý. Ancak %d iþlem yapýldý.\n", feedbackCount);
+        printf(" Error: 1 action must be taken before logging out.But % d transactions have been made\n", feedbackCount);
     }
     if (feedbackRatings[0] != 5) {
-        printf("Hata: Çýkýþ yapýlmadan önce 5 numaralý seçenekle geri bildirim alýnmalý. Ancak %d geri bildirim alýndý.\n", feedbackRatings[0]);
+        printf("Error: Feedback must be received with option 5 before exiting.However, % d feedback was received.\n", feedbackRatings[0]);
     }
 }
 TEST_F(EventAppTest, authenticationTest) {

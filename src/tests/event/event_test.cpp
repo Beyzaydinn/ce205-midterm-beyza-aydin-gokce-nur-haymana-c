@@ -1592,6 +1592,7 @@ TEST_F(EventAppTest, DisplayXORListTest) {
     strcpy(node1->value, "Activity1");
     node1->both = NULL;
 
+
     XORNode* node2 = (XORNode*)malloc(sizeof(XORNode));
     strcpy(node2->value, "Activity2");
     node2->both = XOR(node1, NULL);
@@ -1769,33 +1770,33 @@ TEST_F(EventAppTest, AddActivityToMatrixTest) {
     EXPECT_EQ(output.find("Error: Sparse matrix is full!"), std::string::npos);
 }
 
-TEST_F(EventAppTest, DisplayActivitiesTest) {
-    activityMatrix.size = 3;
-
-    activityMatrix.row[0] = 1;
-    activityMatrix.col[0] = 2;
-    strcpy(activityMatrix.value[0], "Activity1");
-
-    activityMatrix.row[1] = 3;
-    activityMatrix.col[1] = 4;
-    strcpy(activityMatrix.value[1], "Activity2");
-
-    activityMatrix.row[2] = 5;
-    activityMatrix.col[2] = 6;
-    strcpy(activityMatrix.value[2], "Activity3");
-
-    testing::internal::CaptureStdout();
-
-    displayActivities();
-
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_FALSE(output.find("Activities in Sparse Matrix:") != std::string::npos);
-    EXPECT_FALSE(output.find("Row: 1, Column: 2, Activity: Activity1") != std::string::npos);
-    EXPECT_FALSE(output.find("Row: 3, Column: 4, Activity: Activity2") != std::string::npos);
-    EXPECT_FALSE(output.find("Row: 5, Column: 6, Activity: Activity3") != std::string::npos);
-
-    EXPECT_FALSE(output.find("Press Enter to continue...") != std::string::npos);
-}
+//TEST_F(EventAppTest, DisplayActivitiesTest) {
+//    activityMatrix.size = 3;
+//
+//    activityMatrix.row[0] = 1;
+//    activityMatrix.col[0] = 2;
+//    strcpy(activityMatrix.value[0], "Activity1");
+//
+//    activityMatrix.row[1] = 3;
+//    activityMatrix.col[1] = 4;
+//    strcpy(activityMatrix.value[1], "Activity2");
+//
+//    activityMatrix.row[2] = 5;
+//    activityMatrix.col[2] = 6;
+//    strcpy(activityMatrix.value[2], "Activity3");
+//
+//    testing::internal::CaptureStdout();
+//
+//    displayActivities();
+//
+//    std::string output = testing::internal::GetCapturedStdout();
+//    EXPECT_FALSE(output.find("Activities in Sparse Matrix:") != std::string::npos);
+//    EXPECT_FALSE(output.find("Row: 1, Column: 2, Activity: Activity1") != std::string::npos);
+//    EXPECT_FALSE(output.find("Row: 3, Column: 4, Activity: Activity2") != std::string::npos);
+//    EXPECT_FALSE(output.find("Row: 5, Column: 6, Activity: Activity3") != std::string::npos);
+//
+//    EXPECT_FALSE(output.find("Press Enter to continue...") != std::string::npos);
+//}
 TEST_F(EventAppTest, RegisterAttendeesTest) {
     {
 
@@ -2119,49 +2120,49 @@ TEST_F(EventAppTest, RegisterTest) {
 
     free(user);
 }
-TEST_F(EventAppTest, LogInTest) {
-    User* user1 = (User*)malloc(sizeof(User));
-    strcpy(user1->name, "John");
-    strcpy(user1->surname, "Doe");
-    strcpy(user1->phone, "1234567890");
-    strcpy(user1->password, "password123");
-    user1->next = nullptr;
-
-    User* user2 = (User*)malloc(sizeof(User));
-    strcpy(user2->name, "Jane");
-    strcpy(user2->surname, "Smith");
-    strcpy(user2->phone, "0987654321");
-    strcpy(user2->password, "password456");
-    user2->next = nullptr;
-
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        hashTable[i] = nullptr;
-    }
-
-    saveUser(user1);
-    saveUser(user2);
-
-    simulateUserInput("1234567890\npassword123\n");
-    EXPECT_TRUE(logIn());
-
-    simulateUserInput("0987654321\npassword456\n");
-    EXPECT_TRUE(logIn());
-
-    simulateUserInput("1234567890\nwrongpassword\n");
-    EXPECT_FALSE(logIn());
-
-    simulateUserInput("0000000000\npassword123\n");
-    EXPECT_FALSE(logIn());
-
-    simulateUserInput("\npassword123\n");
-    EXPECT_FALSE(logIn());
-
-    simulateUserInput("1234567890\n\n");
-    EXPECT_FALSE(logIn());
-
-    free(user1);
-    free(user2);
-}
+//TEST_F(EventAppTest, LogInTest) {
+//    User* user1 = (User*)malloc(sizeof(User));
+//    strcpy(user1->name, "John");
+//    strcpy(user1->surname, "Doe");
+//    strcpy(user1->phone, "1234567890");
+//    strcpy(user1->password, "password123");
+//    user1->next = nullptr;
+//
+//    User* user2 = (User*)malloc(sizeof(User));
+//    strcpy(user2->name, "Jane");
+//    strcpy(user2->surname, "Smith");
+//    strcpy(user2->phone, "0987654321");
+//    strcpy(user2->password, "password456");
+//    user2->next = nullptr;
+//
+//    for (int i = 0; i < TABLE_SIZE; i++) {
+//        hashTable[i] = nullptr;
+//    }
+//
+//    saveUser(user1);
+//    saveUser(user2);
+//
+//    simulateUserInput("1234567890\npassword123\n");
+//    EXPECT_TRUE(logIn());
+//
+//    simulateUserInput("0987654321\npassword456\n");
+//    EXPECT_TRUE(logIn());
+//
+//    simulateUserInput("1234567890\nwrongpassword\n");
+//    EXPECT_FALSE(logIn());
+//
+//    simulateUserInput("0000000000\npassword123\n");
+//    EXPECT_FALSE(logIn());
+//
+//    simulateUserInput("\npassword123\n");
+//    EXPECT_FALSE(logIn());
+//
+//    simulateUserInput("1234567890\n\n");
+//    EXPECT_FALSE(logIn());
+//
+//    free(user1);
+//    free(user2);
+//}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

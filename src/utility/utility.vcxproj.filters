@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\utility\src\mathUtility.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\utility\header\commonTypes.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\utility\header\mathUtility.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\utility\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="header">
+      <UniqueIdentifier>{807E1A4C-A299-33FF-9B4E-FB2C14368518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{31C2137B-C1EC-38FB-BC95-539CDB1B3D6B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

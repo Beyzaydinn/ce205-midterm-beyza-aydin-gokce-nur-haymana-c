@@ -74,7 +74,7 @@ cmake --install build_linux --strip
 echo "Test CMAKE"
 cd build_linux
 # ctest -C Debug -j4 --output-on-failure --output-log test_results_linux.log
-ctest -C Debug -j4 --output-junit testResults_linux.xml --output-log test_results_linux.log
+ctest -C Debug -j1 --output-junit testResults_linux.xml --output-log test_results_linux.log
 junit2html testResults_linux.xml testResults_linux.html
 cp testResults_linux.html "../docs/testresultslinux/index.html"
 cd ..
@@ -93,9 +93,7 @@ lcov --rc lcov_branch_coverage=1 --remove coverage_linux.info 'tests/*' --output
 lcov --rc lcov_branch_coverage=1 --list coverage_linux.info
 
 echo "Generate Test Report"
-reportgenerator "-title:Event Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" 
-
-"-sourcedirs:src/utility/src;src/utility/header;src/event/src;src/event/header;src/eventapp/src;src/eventapp/header;src/tests/utility;src/tests/event" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
+reportgenerator "-title:Event Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" "-sourcedirs:src/utility/src;src/utility/header;src/event/src;src/event/header;src/eventapp/src;src/eventapp/header;src/tests/utility;src/tests/event" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
 reportgenerator "-reports:**/coverage_linux.info" "-targetdir:assets/codecoverageliblinux" "-reporttypes:Badges" "-sourcedirs:src/utility/src;src/utility/header;src/event/src;src/event/header;src/eventapp/src;src/eventapp/header;src/tests/utility;src/tests/event" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
 
 echo "Copy the 'assets' folder and its contents to 'docs' recursively"

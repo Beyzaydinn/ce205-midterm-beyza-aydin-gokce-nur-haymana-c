@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ResolveNugetPackages>false</ResolveNugetPackages>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CDA55A3B-4216-3385-AE79-C4FF78D6A67C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c -BC:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c --check-stamp-file C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeCCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeCXXCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c -BC:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c --check-stamp-file C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.30\Modules\Platform\WindowsPaths.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeCCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeCXXCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeRCCompiler.cmake;C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\3.30.5\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\ZERO_CHECK.vcxproj">
+      <Project>{6408A8E7-A43F-311B-B595-8A3635D1A37E}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\event\event.vcxproj">
+      <Project>{4B4BA532-3707-32EC-AA83-06375B78F80A}</Project>
+      <Name>event</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\tests\event\event_tests.vcxproj">
+      <Project>{BCAD883D-83DF-3E6D-9822-B33A8C708EBF}</Project>
+      <Name>event_tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\eventapp\eventapp.vcxproj">
+      <Project>{4205AC1F-1F6F-3287-A977-600D19170A46}</Project>
+      <Name>eventapp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\utility\utility.vcxproj">
+      <Project>{051B2560-2804-3D92-B272-4E9128AF2E21}</Project>
+      <Name>utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\src\tests\utility\utility_tests.vcxproj">
+      <Project>{8730771C-04C5-35B8-AB08-931B47DFAC8E}</Project>
+      <Name>utility_tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

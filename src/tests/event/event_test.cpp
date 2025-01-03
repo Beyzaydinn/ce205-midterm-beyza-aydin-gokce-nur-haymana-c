@@ -1687,6 +1687,11 @@ TEST_F(EventAppTest, attendeeMenuTest) {
     EXPECT_FALSE(attendee());
     resetStdinStdout();
 
+    // Simulate input for Manage Attendees List and choose Add Attendee
+    simulateUserInput("4\n2\nAlice\n4\n5\n");
+    EXPECT_FALSE(attendee());
+    resetStdinStdout();
+
     // Simulate input for invalid option
     simulateUserInput("6\n5\n");
     EXPECT_FALSE(attendee());
@@ -1770,33 +1775,33 @@ TEST_F(EventAppTest, AddActivityToMatrixTest) {
     EXPECT_EQ(output.find("Error: Sparse matrix is full!"), std::string::npos);
 }
 
-//TEST_F(EventAppTest, DisplayActivitiesTest) {
-//    activityMatrix.size = 3;
-//
-//    activityMatrix.row[0] = 1;
-//    activityMatrix.col[0] = 2;
-//    strcpy(activityMatrix.value[0], "Activity1");
-//
-//    activityMatrix.row[1] = 3;
-//    activityMatrix.col[1] = 4;
-//    strcpy(activityMatrix.value[1], "Activity2");
-//
-//    activityMatrix.row[2] = 5;
-//    activityMatrix.col[2] = 6;
-//    strcpy(activityMatrix.value[2], "Activity3");
-//
-//    testing::internal::CaptureStdout();
-//
-//    displayActivities();
-//
-//    std::string output = testing::internal::GetCapturedStdout();
-//    EXPECT_FALSE(output.find("Activities in Sparse Matrix:") != std::string::npos);
-//    EXPECT_FALSE(output.find("Row: 1, Column: 2, Activity: Activity1") != std::string::npos);
-//    EXPECT_FALSE(output.find("Row: 3, Column: 4, Activity: Activity2") != std::string::npos);
-//    EXPECT_FALSE(output.find("Row: 5, Column: 6, Activity: Activity3") != std::string::npos);
-//
-//    EXPECT_FALSE(output.find("Press Enter to continue...") != std::string::npos);
-//}
+TEST_F(EventAppTest, DisplayActivitiesTest) {
+    activityMatrix.size = 3;
+
+    activityMatrix.row[0] = 1;
+    activityMatrix.col[0] = 2;
+    strcpy(activityMatrix.value[0], "Activity1");
+
+    activityMatrix.row[1] = 3;
+    activityMatrix.col[1] = 4;
+    strcpy(activityMatrix.value[1], "Activity2");
+
+    activityMatrix.row[2] = 5;
+    activityMatrix.col[2] = 6;
+    strcpy(activityMatrix.value[2], "Activity3");
+
+    testing::internal::CaptureStdout();
+
+    displayActivities();
+
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_FALSE(output.find("Activities in Sparse Matrix:") != std::string::npos);
+    EXPECT_FALSE(output.find("Row: 1, Column: 2, Activity: Activity1") != std::string::npos);
+    EXPECT_FALSE(output.find("Row: 3, Column: 4, Activity: Activity2") != std::string::npos);
+    EXPECT_FALSE(output.find("Row: 5, Column: 6, Activity: Activity3") != std::string::npos);
+
+    EXPECT_FALSE(output.find("Press Enter to continue...") != std::string::npos);
+}
 TEST_F(EventAppTest, RegisterAttendeesTest) {
     {
 
@@ -1996,7 +2001,6 @@ TEST_F(EventAppTest, RegisterAttendeesCompleteTest) {
     fclose(file); 
 }
 
-
 TEST_F(EventAppTest, ManageEventCase1GoToNextEvent) {
     simulateUserInput("1\n4\n"); // Simulates navigating to the next event and then exiting
     bool result = manageEvent();
@@ -2013,7 +2017,7 @@ TEST_F(EventAppTest, ManageEventCase2GoToPreviousEvent) {
 
 TEST_F(EventAppTest, ManageEventTest) {
     Event* event = (Event*)malloc(sizeof(Event));
-    ASSERT_NE(event, nullptr);  
+    ASSERT_NE(event, nullptr);
 
     strcpy(event->type, "Conference");
     strcpy(event->date, "01-01-2025");
@@ -2023,23 +2027,22 @@ TEST_F(EventAppTest, ManageEventTest) {
     head = tail = event;
 
     FILE* file = fopen("event.bin", "wb");
-    ASSERT_NE(file, nullptr); 
+    ASSERT_NE(file, nullptr);
     fclose(file);
 
-    simulateUserInput("3\nWorkshop\n01-02-2025\nGreen\nInnovation\n");  
-    EXPECT_TRUE(manageEvent());  
+    simulateUserInput("3\nWorkshop\n01-02-2025\nGreen\nInnovation\n");
+    EXPECT_TRUE(manageEvent());
 
     EXPECT_STREQ("Workshop", event->type);
     EXPECT_STREQ("01-02-2025", event->date);
     EXPECT_STREQ("Green", event->color);
     EXPECT_STREQ("Innovation", event->concept);
 
-    simulateUserInput("4\n");  
-    EXPECT_FALSE(manageEvent()); 
+    simulateUserInput("4\n");
+    EXPECT_FALSE(manageEvent());
 
     free(event);
 }
-
 TEST_F(EventAppTest, CreateEventTest) {
     Event* event = (Event*)malloc(sizeof(Event));
 
@@ -2088,7 +2091,6 @@ TEST_F(EventAppTest, CreateEventTest) {
     free(event);
 }
 
-
 TEST_F(EventAppTest, RegisterTest) {
     User* user = (User*)malloc(sizeof(User));
     strcpy(user->name, "John");
@@ -2120,49 +2122,76 @@ TEST_F(EventAppTest, RegisterTest) {
 
     free(user);
 }
-//TEST_F(EventAppTest, LogInTest) {
-//    User* user1 = (User*)malloc(sizeof(User));
-//    strcpy(user1->name, "John");
-//    strcpy(user1->surname, "Doe");
-//    strcpy(user1->phone, "1234567890");
-//    strcpy(user1->password, "password123");
-//    user1->next = nullptr;
-//
-//    User* user2 = (User*)malloc(sizeof(User));
-//    strcpy(user2->name, "Jane");
-//    strcpy(user2->surname, "Smith");
-//    strcpy(user2->phone, "0987654321");
-//    strcpy(user2->password, "password456");
-//    user2->next = nullptr;
-//
-//    for (int i = 0; i < TABLE_SIZE; i++) {
-//        hashTable[i] = nullptr;
-//    }
-//
-//    saveUser(user1);
-//    saveUser(user2);
-//
-//    simulateUserInput("1234567890\npassword123\n");
-//    EXPECT_TRUE(logIn());
-//
-//    simulateUserInput("0987654321\npassword456\n");
-//    EXPECT_TRUE(logIn());
-//
-//    simulateUserInput("1234567890\nwrongpassword\n");
-//    EXPECT_FALSE(logIn());
-//
-//    simulateUserInput("0000000000\npassword123\n");
-//    EXPECT_FALSE(logIn());
-//
-//    simulateUserInput("\npassword123\n");
-//    EXPECT_FALSE(logIn());
-//
-//    simulateUserInput("1234567890\n\n");
-//    EXPECT_FALSE(logIn());
-//
-//    free(user1);
-//    free(user2);
-//}
+TEST_F(EventAppTest, LogInTest) {
+    User* user1 = (User*)malloc(sizeof(User));
+    strcpy(user1->name, "John");
+    strcpy(user1->surname, "Doe");
+    strcpy(user1->phone, "1234567890");
+    strcpy(user1->password, "password123");
+    user1->next = nullptr;
+
+    User* user2 = (User*)malloc(sizeof(User));
+    strcpy(user2->name, "Jane");
+    strcpy(user2->surname, "Smith");
+    strcpy(user2->phone, "0987654321");
+    strcpy(user2->password, "password456");
+    user2->next = nullptr;
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable[i] = nullptr;
+    }
+
+    saveUser(user1);
+    saveUser(user2);
+
+    simulateUserInput("1234567890\npassword123\n");
+    EXPECT_TRUE(logIn());
+
+    simulateUserInput("0987654321\npassword456\n");
+    EXPECT_TRUE(logIn());
+
+    simulateUserInput("1234567890\nwrongpassword\n");
+    EXPECT_FALSE(logIn());
+
+    simulateUserInput("0000000000\npassword123\n");
+    EXPECT_FALSE(logIn());
+
+    simulateUserInput("\npassword123\n");
+    EXPECT_FALSE(logIn());
+
+    simulateUserInput("1234567890\n\n");
+    EXPECT_FALSE(logIn());
+
+    free(user1);
+    free(user2);
+}
+
+TEST_F(EventAppTest, DisplaySortedRatingsTest) {
+    // Initialize test data
+    feedbackCount = 5; // Number of feedback ratings
+    feedbackRatings[0] = 4;
+    feedbackRatings[1] = 2;
+    feedbackRatings[2] = 5;
+    feedbackRatings[3] = 1;
+    feedbackRatings[4] = 3;
+
+    // Capture output
+    testing::internal::CaptureStdout();
+
+    // Call the function to test
+    displaySortedRatings();
+
+    // Retrieve captured output
+    std::string output = testing::internal::GetCapturedStdout();
+
+    // Check expected output
+    EXPECT_NE(output.find("Sorted Ratings:"), std::string::npos);
+    EXPECT_NE(output.find("1 2 3 4 5"), std::string::npos);
+    EXPECT_NE(output.find("Press Enter to return to Feedback Menu..."), std::string::npos);
+
+    // Simulate user pressing Enter to ensure function does not hang
+    std::cout << "Simulating user pressing Enter..." << std::endl;
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

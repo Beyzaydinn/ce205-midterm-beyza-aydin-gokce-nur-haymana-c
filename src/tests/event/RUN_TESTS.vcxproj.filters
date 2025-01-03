@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Useres\Desktop\ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c\CMakeFiles\89e9db69d38dcec61cb1c3b9ec4be2b0\RUN_TESTS_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{866E5129-6968-3637-BDD9-0B76EFA8DBA9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/src/tests/utility/utility_tests[1]_tests.cmake")
+  include("C:/Users/Useres/Desktop/ce205-midterm-beyza-aydin-gokcenur-haymana-siray-sanem-bozdogan-duha-beyza-gungor-c/src/tests/utility/utility_tests[1]_tests.cmake")
+else()
+  add_test(utility_tests_NOT_BUILT utility_tests_NOT_BUILT)
+endif()

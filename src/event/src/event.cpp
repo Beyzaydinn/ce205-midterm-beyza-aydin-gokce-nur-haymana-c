@@ -433,15 +433,13 @@ void saveHashTableToFile() {
  * handling code if needed.
  */
 void loadHashTableFromFile() {
-    FILE* file = fopen("users.bin", "rb+");
-
+    FILE* file = fopen("users.bin", "rb");
+    /*
     if (file == NULL) {
-        // If the file does not exist, create it
-        file = fopen("users.bin", "wb+");
+        perror("An error occurred while opening the file");
+        return;
     }
-
-    // Don't forget to close the file when done
-    fclose(file);
+    */
 
     while (1) {
         User* newUser = (User*)malloc(sizeof(User));
